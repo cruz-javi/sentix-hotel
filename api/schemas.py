@@ -73,6 +73,40 @@ class NlpStepsResponse(BaseModel):
     final_processed_text: str
 
 
+class BatchPredictionRequest(BaseModel):
+    """Esquema para clasificar múltiples reseñas simultáneamente (por lote o CSV)."""
+
+    texts: List[str] = Field(
+        ...,
+        description="Lista de textos de reseñas a clasificar",
+        min_length=1,
+        max_length=500,
+    )
+
+
+class BatchPredictionItem(BaseModel):
+    """Resultado individual dentro de una predicción por lote."""
+
+    index: int
+    text: str
+    sentiment_label: str
+    sentiment_class: int
+    confidence: float
+    probability_positive: float
+    probability_negative: float
+
+
+class BatchPredictionResponse(BaseModel):
+    """Resumen y detalles de la clasificación por lote."""
+
+    total_reviews: int
+    positive_count: int
+    negative_count: int
+    positive_ratio: float
+    negative_ratio: float
+    results: List[BatchPredictionItem]
+
+
 class HealthResponse(BaseModel):
     """Esquema de respuesta de salud del servicio."""
 

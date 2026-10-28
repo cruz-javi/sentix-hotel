@@ -26,6 +26,9 @@ from src.config import (
 from api.schemas import (
     PredictionRequest,
     PredictionResponse,
+    BatchPredictionRequest,
+    BatchPredictionResponse,
+    BatchPredictionItem,
     NlpStepsRequest,
     NlpStepsResponse,
     HealthResponse,
@@ -126,6 +129,69 @@ async def predict_sentiment(request: PredictionRequest):
         )
 
 
+@app.post("/api/predict-batch", response_model=BatchPredictionResponse, tags=["Inferencia"])
+async def predict_batch(request: BatchPredictionRequest):
+    """
+    Clasifica un conjunto de reseñas en lote (útil para procesamiento masivo de CSVs).
+    """
+    pipeline = app_state.get("pipeline")
+    if pipeline is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="El modelo de machine learning no está cargado.",
+        )
+
+    try:
+        valid_texts = [text.strip() for text in request.texts if text.strip()]
+        if not valid_texts:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Ninguno de los textos proporcionados contiene caracteres válidos.",
+            )
+
+        probabilities = pipeline.predict_proba(valid_texts)
+        results = []
+        positive_count = 0
+
+        for idx, (text_item, probs) in enumerate(zip(valid_texts, probabilities)):
+            prob_neg = float(probs[0])
+            prob_pos = float(probs[1])
+            is_pos = prob_pos >= DEFAULT_DECISION_THRESHOLD
+            if is_pos:
+                positive_count += 1
+
+            results.append(
+                BatchPredictionItem(
+                    index=idx + 1,
+                    text=text_item[:150] + ("..." if len(text_item) > 150 else ""),
+                    sentiment_label="Positivo" if is_pos else "Negativo",
+                    sentiment_class=1 if is_pos else 0,
+                    confidence=round(prob_pos if is_pos else prob_neg, 4),
+                    probability_positive=round(prob_pos, 4),
+                    probability_negative=round(prob_neg, 4),
+                )
+            )
+
+        total = len(results)
+        negative_count = total - positive_count
+
+        return BatchPredictionResponse(
+            total_reviews=total,
+            positive_count=positive_count,
+            negative_count=negative_count,
+            positive_ratio=round(positive_count / total, 4) if total > 0 else 0.0,
+            negative_ratio=round(negative_count / total, 4) if total > 0 else 0.0,
+            results=results,
+        )
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error durante la inferencia por lote: {str(exc)}",
+        )
+
+
 @app.post("/api/nlp-steps", response_model=NlpStepsResponse, tags=["Explicabilidad"])
 async def explain_nlp_steps(request: NlpStepsRequest):
     """
@@ -157,3 +223,11 @@ async def get_metrics():
             detail="No se encontró el reporte de métricas. Ejecute el entrenamiento para generarlo.",
         )
     return report
+
+
+# Servir Frontend interactivo como archivos estáticos en la raíz
+frontend_dist_dir = Path(__file__).resolve().parent.parent / "frontend" / "dist"
+if frontend_dist_dir.exists():
+    from fastapi.staticfiles import StaticFiles
+    app.mount("/", StaticFiles(directory=str(frontend_dist_dir), html=True), name="frontend")
+
