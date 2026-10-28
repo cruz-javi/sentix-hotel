@@ -1,0 +1,95 @@
+{
+  "model_name": "LogisticRegression_Tfidf",
+  "metrics": {
+    "accuracy": 0.962,
+    "precision_macro": 0.9627,
+    "recall_macro": 0.962,
+    "f1_macro": 0.962,
+    "f1_weighted": 0.962,
+    "classification_report": {
+      "Negativo": {
+        "precision": 0.9440860215053763,
+        "recall": 0.9821029082774049,
+        "f1-score": 0.9627192982456141,
+        "support": 447.0
+      },
+      "Positivo": {
+        "precision": 0.9813519813519813,
+        "recall": 0.941834451901566,
+        "f1-score": 0.9611872146118722,
+        "support": 447.0
+      },
+      "accuracy": 0.9619686800894854,
+      "macro avg": {
+        "precision": 0.9627190014286788,
+        "recall": 0.9619686800894854,
+        "f1-score": 0.9619532564287432,
+        "support": 894.0
+      },
+      "weighted avg": {
+        "precision": 0.9627190014286787,
+        "recall": 0.9619686800894854,
+        "f1-score": 0.9619532564287431,
+        "support": 894.0
+      }
+    }
+  },
+  "confusion_matrix": {
+    "matrix": [
+      [
+        439,
+        8
+      ],
+      [
+        26,
+        421
+      ]
+    ],
+    "true_negatives": 439,
+    "false_positives": 8,
+    "false_negatives": 26,
+    "true_positives": 421
+  },
+  "error_analysis_samples": [
+    {
+      "sample_index": 22,
+      "text": "Mejorar el menu. Mi experiencia fue buena me gusto bastante la playa los postres y otras comida pero la carne y pescado estaban baja de sal. y agregar mas cosas al menú como lasaña pollo horneado pastelón ósea cuando estuve allá no vi nada de eso.",
+      "real_label": "Positivo",
+      "predicted_label": "Negativo",
+      "predicted_probability": 0.326,
+      "error_type": "Falso Negativo"
+    },
+    {
+      "sample_index": 45,
+      "text": "Fueron unas buenas vacaciones. El hotel muy completo y con gran variedad de posibilidades para hacer cosas. No es fácil aburrirse y todos en mi grupo (adultos, niños y adolescentes) disfrutamos con el mar, la comida, las piscinas y deportes náuticos!...",
+      "real_label": "Positivo",
+      "predicted_label": "Negativo",
+      "predicted_probability": 0.4263,
+      "error_type": "Falso Negativo"
+    },
+    {
+      "sample_index": 78,
+      "text": "Muy buen hotel. Elegimos este hotel por sus amplios espacios así evitabamos mayor exposición por covid, todo el personal llevaba sus mascarillas, hay gel desinfectante en todos los restaurantes y suelen te tomar la temperatura en las mañanas al momen...",
+      "real_label": "Positivo",
+      "predicted_label": "Negativo",
+      "predicted_probability": 0.4249,
+      "error_type": "Falso Negativo"
+    },
+    {
+      "sample_index": 83,
+      "text": "Muy buen hotel, tal vez poca animación.... En lineas generales lo encontramos excelente en todos los sentidos, no creo que podamos poner ni una sola pega al hotel como tal. Lo unico, pues tal vez echamos en falta un poco mas de animacion, ya que ante...",
+      "real_label": "Positivo",
+      "predicted_label": "Negativo",
+      "predicted_probability": 0.4504,
+      "error_type": "Falso Negativo"
+    },
+    {
+      "sample_index": 89,
+      "text": "Podría mejorar. Acudí junto a mi familia x 7 noches. Ya cuando iba en el transfer el conductor me informa que el hotel que había reservado se encontraba en mantencion (lamentablemente no recibí correo previo informando esta situación), por lo que no ...",
+      "real_label": "Positivo",
+      "predicted_label": "Negativo",
+      "predicted_probability": 0.2168,
+      "error_type": "Falso Negativo"
+    }
+  ]
+}
