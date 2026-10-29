@@ -5,6 +5,7 @@ import SentimentResult from './components/SentimentResult';
 import NlpPipelineView from './components/NlpPipelineView';
 import MetricsDashboard from './components/MetricsDashboard';
 import BatchAnalysis from './components/BatchAnalysis';
+import FeedbackModal from './components/FeedbackModal';
 import { MessageSquare, Layers, BarChart3, UploadCloud } from 'lucide-react';
 
 export default function App() {
@@ -13,27 +14,50 @@ export default function App() {
   const [predictResult, setPredictResult] = useState(null);
   const [nlpSteps, setNlpSteps] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+
+  // Estado del modal de feedback unificado
+  const [feedbackModal, setFeedbackModal] = useState({
+    isOpen: false,
+    type: 'info',
+    title: '',
+    message: '',
+    details: null,
+  });
+
+  const handleShowFeedback = ({ type = 'info', title, message, details = null }) => {
+    setFeedbackModal({
+      isOpen: true,
+      type,
+      title,
+      message,
+      details,
+    });
+  };
+
+  const handleCloseFeedback = () => {
+    setFeedbackModal((prev) => ({ ...prev, isOpen: false }));
+  };
 
   const handleAnalyze = async () => {
     const trimmed = reviewText.trim();
     if (!trimmed) {
-      setError('Por favor, escribe una reseña antes de analizar.');
+      handleShowFeedback({
+        type: 'warning',
+        title: 'Texto Requerido',
+        message: 'Por favor, introduce una reseña antes de solicitar la clasificación de sentimiento.',
+      });
       return;
     }
 
     setLoading(true);
-    setError(null);
 
     try {
-      // 1. Llamada a Inferencia
       const predictPromise = fetch('/api/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: trimmed }),
       });
 
-      // 2. Llamada a Explicabilidad PLN
       const nlpPromise = fetch('/api/nlp-steps', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -43,8 +67,8 @@ export default function App() {
       const [resPredict, resNlp] = await Promise.all([predictPromise, nlpPromise]);
 
       if (!resPredict.ok) {
-        const errorJson = await resPredict.json();
-        throw new Error(errorJson.detail || 'Error al predecir sentimiento');
+        const errorJson = await resPredict.json().catch(() => ({}));
+        throw new Error(errorJson.detail || `Error en la solicitud HTTP ${resPredict.status}`);
       }
 
       const predictData = await resPredict.json();
@@ -55,28 +79,32 @@ export default function App() {
         setNlpSteps(nlpData);
       }
     } catch (err) {
-      setError(err.message || 'Error al comunicarse con la API de Sentix-Hotel');
+      handleShowFeedback({
+        type: 'error',
+        title: 'Error de Clasificación',
+        message: err.message || 'No fue posible completar la inferencia con el backend.',
+      });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-blue-600 selection:text-white">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-600 selection:text-white">
       {/* Barra de Navegación */}
       <Navbar />
 
-      {/* Contenido Principal */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* Pestañas de Navegación */}
-        <div className="flex border-b border-slate-800 space-x-1 sm:space-x-3 overflow-x-auto pb-1 text-sm font-medium">
+      {/* Contenido Principal (60% slate-950, 30% slate-900/slate-800, 10% indigo) */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        {/* Pestañas de Navegación Sobrias */}
+        <div className="flex border-b border-slate-800 space-x-1 sm:space-x-2 overflow-x-auto pb-1 text-xs font-medium">
           <button
             type="button"
             onClick={() => setActiveTab('live')}
             className={`px-4 py-2.5 rounded-xl transition flex items-center gap-2 whitespace-nowrap ${
               activeTab === 'live'
-                ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
+                ? 'bg-indigo-600 text-white shadow-sm'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
             }`}
           >
             <MessageSquare className="w-4 h-4" />
@@ -88,14 +116,14 @@ export default function App() {
             onClick={() => setActiveTab('pipeline')}
             className={`px-4 py-2.5 rounded-xl transition flex items-center gap-2 whitespace-nowrap ${
               activeTab === 'pipeline'
-                ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
+                ? 'bg-indigo-600 text-white shadow-sm'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
             }`}
           >
             <Layers className="w-4 h-4" />
             <span>Pipeline PLN Paso a Paso</span>
             {nlpSteps && (
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
             )}
           </button>
 
@@ -104,8 +132,8 @@ export default function App() {
             onClick={() => setActiveTab('metrics')}
             className={`px-4 py-2.5 rounded-xl transition flex items-center gap-2 whitespace-nowrap ${
               activeTab === 'metrics'
-                ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
+                ? 'bg-indigo-600 text-white shadow-sm'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
             }`}
           >
             <BarChart3 className="w-4 h-4" />
@@ -117,8 +145,8 @@ export default function App() {
             onClick={() => setActiveTab('batch')}
             className={`px-4 py-2.5 rounded-xl transition flex items-center gap-2 whitespace-nowrap ${
               activeTab === 'batch'
-                ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
+                ? 'bg-indigo-600 text-white shadow-sm'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
             }`}
           >
             <UploadCloud className="w-4 h-4" />
@@ -128,7 +156,7 @@ export default function App() {
 
         {/* Vista 1: Clasificador en Vivo */}
         {activeTab === 'live' && (
-          <div className="space-y-8">
+          <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
               <div className="lg:col-span-7">
                 <ReviewInput
@@ -136,7 +164,6 @@ export default function App() {
                   setText={setReviewText}
                   onAnalyze={handleAnalyze}
                   loading={loading}
-                  error={error}
                 />
               </div>
               <div className="lg:col-span-5 h-full">
@@ -144,19 +171,18 @@ export default function App() {
               </div>
             </div>
 
-            {/* Vista previa rápida del pipeline debajo si ya se analizó */}
             {nlpSteps && (
-              <div className="space-y-4">
+              <div className="space-y-3 pt-2">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                    Desglose Rápido del Pipeline para esta Reseña
+                    Desglose Técnico de Procesamiento
                   </h3>
                   <button
                     type="button"
                     onClick={() => setActiveTab('pipeline')}
-                    className="text-xs text-blue-400 hover:underline font-medium"
+                    className="text-xs text-indigo-400 hover:underline font-medium"
                   >
-                    Ver Vista Completa de PLN →
+                    Abrir Vista Completa de PLN →
                   </button>
                 </div>
                 <NlpPipelineView nlpSteps={nlpSteps} loading={loading} />
@@ -168,19 +194,19 @@ export default function App() {
         {/* Vista 2: Pipeline PLN Paso a Paso */}
         {activeTab === 'pipeline' && (
           <div className="space-y-6">
-            <div className="glass p-5 rounded-2xl border border-slate-800 flex items-center justify-between flex-wrap gap-3">
+            <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl flex items-center justify-between flex-wrap gap-3">
               <div>
-                <span className="text-xs text-slate-400 block">Reseña bajo análisis:</span>
-                <p className="text-sm text-slate-200 italic font-serif">
-                  {reviewText ? `"${reviewText}"` : 'Ninguna reseña analizada aún. Ingresa una en el clasificador.'}
+                <span className="text-[11px] text-slate-500 uppercase font-semibold block">Reseña Activa</span>
+                <p className="text-xs text-slate-300 font-mono">
+                  {reviewText ? `"${reviewText}"` : 'Ninguna reseña analizada aún. Ingrese una en la pestaña del clasificador.'}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setActiveTab('live')}
-                className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-medium transition"
+                className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium border border-slate-700 transition"
               >
-                Cambiar Reseña
+                Cambiar Texto
               </button>
             </div>
             <NlpPipelineView nlpSteps={nlpSteps} loading={loading} />
@@ -188,29 +214,39 @@ export default function App() {
         )}
 
         {/* Vista 3: Métricas del Modelo */}
-        {activeTab === 'metrics' && <MetricsDashboard />}
+        {activeTab === 'metrics' && <MetricsDashboard onShowFeedback={handleShowFeedback} />}
 
         {/* Vista 4: Análisis por Lote CSV */}
-        {activeTab === 'batch' && <BatchAnalysis />}
+        {activeTab === 'batch' && <BatchAnalysis onShowFeedback={handleShowFeedback} />}
       </main>
 
-      {/* Pie de Página */}
-      <footer className="border-t border-slate-800/80 py-6 text-xs text-slate-500">
+      {/* Modal Unificado de Feedback */}
+      <FeedbackModal
+        isOpen={feedbackModal.isOpen}
+        onClose={handleCloseFeedback}
+        type={feedbackModal.type}
+        title={feedbackModal.title}
+        message={feedbackModal.message}
+        details={feedbackModal.details}
+      />
+
+      {/* Pie de Página Profesional y Sobrio */}
+      <footer className="border-t border-slate-800/80 py-6 text-xs text-slate-500 bg-slate-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div>
-            <p>
-              <strong>Sentix-Hotel</strong> · Proyecto Integrador de Tópicos Especiales y Programación Avanzada
+            <p className="font-semibold text-slate-400">
+              Sentix-Hotel
             </p>
             <p className="text-[11px] text-slate-600">
-              Equipo: Javier (9no), José, Gabriel · Docente: Ing. Tópicos
+              Plataforma de Análisis de Sentimiento y Minería de Opinión en Reseñas de Hospedaje
             </p>
           </div>
-          <div className="flex items-center space-x-4 text-[11px]">
-            <span>FastAPI 0.115</span>
+          <div className="flex items-center space-x-3 text-[11px] text-slate-500 font-mono">
+            <span>FastAPI REST API</span>
             <span>·</span>
-            <span>Scikit-Learn 1.6</span>
+            <span>Scikit-Learn TF-IDF</span>
             <span>·</span>
-            <span>React 18 + Vite</span>
+            <span>React + Vite</span>
           </div>
         </div>
       </footer>

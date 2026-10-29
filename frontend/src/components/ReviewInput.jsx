@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, Send, Loader2 } from 'lucide-react';
+import { Send, Loader2, FileEdit, CheckCircle2, XCircle, ShieldAlert, SplitSquareVertical } from 'lucide-react';
 
 const EXAMPLES = {
   pos: "El hotel superó todas nuestras expectativas, las habitaciones muy amplias y el personal muy atento y educado.",
@@ -8,7 +8,7 @@ const EXAMPLES = {
   mixed: "Las instalaciones y la piscina son hermosas, aunque el wifi no funcionaba bien en la habitación."
 };
 
-export default function ReviewInput({ text, setText, onAnalyze, loading, error }) {
+export default function ReviewInput({ text, setText, onAnalyze, loading }) {
   const handleKeyDown = (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
       onAnalyze();
@@ -16,10 +16,11 @@ export default function ReviewInput({ text, setText, onAnalyze, loading, error }
   };
 
   return (
-    <div className="glass p-6 rounded-2xl border border-slate-800/80 shadow-xl space-y-4">
+    <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
       <div className="flex items-center justify-between">
         <label htmlFor="review-textarea" className="text-sm font-semibold text-slate-200 flex items-center gap-2">
-          <span>✍️</span> Escribe o pega una reseña de hotel:
+          <FileEdit className="w-4 h-4 text-indigo-400" />
+          <span>Ingreso de Reseña Hotelera:</span>
         </label>
         <span className="text-xs text-slate-500 font-mono">
           {text.length} caracteres
@@ -33,71 +34,68 @@ export default function ReviewInput({ text, setText, onAnalyze, loading, error }
         onChange={(e) => setText(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="Ejemplo: Las instalaciones del hotel superaron nuestras expectativas, la habitación amplia y el personal muy atento..."
-        className="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl p-3.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
+        className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3.5 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition resize-none leading-relaxed"
       />
 
-      {error && (
-        <div className="p-3 rounded-xl bg-rose-950/60 border border-rose-800 text-rose-300 text-xs">
-          {error}
-        </div>
-      )}
-
-      {/* Botones de ejemplo rápido */}
+      {/* Botones de prueba predefinidos con iconografía sobria */}
       <div className="space-y-2">
-        <p className="text-xs font-medium text-slate-400 flex items-center gap-1.5">
-          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-          <span>O prueba un caso de ejemplo:</span>
+        <p className="text-xs font-medium text-slate-400">
+          Casos de prueba predeterminados:
         </p>
         <div className="flex flex-wrap gap-2 text-xs">
           <button
             type="button"
             onClick={() => setText(EXAMPLES.pos)}
-            className="px-2.5 py-1.5 rounded-lg bg-emerald-950/40 text-emerald-300 border border-emerald-800/50 hover:bg-emerald-900/50 transition"
+            className="px-3 py-1.5 rounded-lg bg-slate-800/80 text-slate-300 border border-slate-700 hover:border-emerald-700/60 hover:text-emerald-300 hover:bg-emerald-950/30 transition flex items-center gap-1.5"
           >
-            🟢 Positiva (Excelente)
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Favorable (Positiva)</span>
           </button>
           <button
             type="button"
             onClick={() => setText(EXAMPLES.neg)}
-            className="px-2.5 py-1.5 rounded-lg bg-rose-950/40 text-rose-300 border border-rose-800/50 hover:bg-rose-900/50 transition"
+            className="px-3 py-1.5 rounded-lg bg-slate-800/80 text-slate-300 border border-slate-700 hover:border-rose-700/60 hover:text-rose-300 hover:bg-rose-950/30 transition flex items-center gap-1.5"
           >
-            🔴 Negativa (Pésima)
+            <XCircle className="w-3.5 h-3.5 text-rose-400" />
+            <span>Desfavorable (Negativa)</span>
           </button>
           <button
             type="button"
             onClick={() => setText(EXAMPLES.negation)}
-            className="px-2.5 py-1.5 rounded-lg bg-indigo-950/40 text-indigo-300 border border-indigo-800/50 hover:bg-indigo-900/50 transition"
+            className="px-3 py-1.5 rounded-lg bg-slate-800/80 text-slate-300 border border-slate-700 hover:border-indigo-600/60 hover:text-indigo-300 hover:bg-indigo-950/30 transition flex items-center gap-1.5"
           >
-            ⚡ Con Negaciones ("no me gustó...")
+            <ShieldAlert className="w-3.5 h-3.5 text-indigo-400" />
+            <span>Con Negaciones ("no me gustó...")</span>
           </button>
           <button
             type="button"
             onClick={() => setText(EXAMPLES.mixed)}
-            className="px-2.5 py-1.5 rounded-lg bg-amber-950/40 text-amber-300 border border-amber-800/50 hover:bg-amber-900/50 transition"
+            className="px-3 py-1.5 rounded-lg bg-slate-800/80 text-slate-300 border border-slate-700 hover:border-amber-600/60 hover:text-amber-300 hover:bg-amber-950/30 transition flex items-center gap-1.5"
           >
-            🟡 Mixta ("buena pero...")
+            <SplitSquareVertical className="w-3.5 h-3.5 text-amber-400" />
+            <span>Polaridad Mixta</span>
           </button>
         </div>
       </div>
 
       <div className="pt-2 flex items-center justify-between">
         <p className="text-xs text-slate-500 hidden sm:block">
-          Presiona <kbd className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">Ctrl</kbd> + <kbd className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">Enter</kbd>
+          Presiona <kbd className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono text-[11px]">Ctrl</kbd> + <kbd className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono text-[11px]">Enter</kbd>
         </p>
         <button
           type="button"
           onClick={onAnalyze}
           disabled={loading}
-          className="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-sm rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2 disabled:opacity-50"
+          className="w-full sm:w-auto px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-xl shadow-lg shadow-indigo-600/20 transition flex items-center justify-center gap-2 disabled:opacity-50"
         >
           {loading ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
-              <span>Analizando...</span>
+              <span>Procesando...</span>
             </>
           ) : (
             <>
-              <Send className="w-4 h-4" />
+              <Send className="w-3.5 h-3.5" />
               <span>Analizar Sentimiento</span>
             </>
           )}

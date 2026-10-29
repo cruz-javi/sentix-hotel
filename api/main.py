@@ -1,7 +1,5 @@
 """
 Aplicación Principal FastAPI para Sentix-Hotel.
-
-Responsable: Javier (Capa 4 - Backend)
 Expone la API REST que consume el pipeline y modelo serializados (.joblib).
 No reimplementa preprocesamiento a mano; delega en el artefacto exportado.
 """
@@ -14,6 +12,7 @@ from typing import Dict, Any
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 import joblib
+import uvicorn
 
 from src.config import (
     SERIALIZED_PIPELINE_PATH,

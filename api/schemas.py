@@ -1,9 +1,6 @@
 """
 Esquemas Pydantic para validación y serialización de datos de la API REST.
-
-Responsable: Javier (Capa 4 - Backend)
-Garantiza validación estricta de entradas (rechazo de textos vacíos, límites de longitud)
-y contratos claros de salida para el frontend.
+Garantiza validación estricta de entradas y contratos tipados para el frontend.
 """
 
 from typing import List, Dict, Any, Optional

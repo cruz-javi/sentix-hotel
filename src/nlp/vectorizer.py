@@ -1,7 +1,5 @@
 """
 Módulo de Vectorización TF-IDF y Comparación de N-gramas.
-
-Responsable: José (Capa 2D - NLP)
 Transforma colecciones de textos procesados en matrices numéricas ponderadas por TF-IDF.
 Permite evaluar el impacto de Unigramas frente a Unigramas + Bigramas.
 """

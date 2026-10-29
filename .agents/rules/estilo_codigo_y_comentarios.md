@@ -56,6 +56,9 @@ Los comentarios existen para explicar el **POR QUÉ** de una decisión técnica 
      custom_stop_words = [w for w in spanish_stop_words if w not in NEGATION_WORDS]
      ```
 4. **Formato:** Máximo 1 o 2 líneas breves en español neutro y técnico justo encima de la línea que lo requiere.
+5. **Prohibición estricta de nombres o roles en código:**
+   * ❌ *Prohibido:* `Responsable: Javier...`, `Autor: José...`, `# Hecho por Gabriel`.
+   *  *Bien:* El código y los docstrings pertenecen al repositorio y proyecto común; la trazabilidad de autoría la gestiona exclusivamente Git a través de los commits.
 
 ---
 
@@ -101,3 +104,15 @@ Cualquier parámetro susceptible de ser cuestionado o cambiado por el docente (u
   vectorizer = TfidfVectorizer(ngram_range=NGRAM_RANGE, max_features=MAX_FEATURES)
   ```
 Esto garantiza que si el docente pide *"cámbienlo a unigramas y reentrenen"*, el cambio se haga en **3 segundos** editando un solo archivo.
+
+---
+
+## 6. Estándares de Diseño Frontend (60-30-10, Sobriedad y Cero Emojis)
+
+1. **Regla de color 60-30-10:**
+   * **60% Dominante:** Fondos oscuros / neutros sobrios (`bg-slate-950`, `bg-slate-900`) para jerarquía limpia y lectura descansada.
+   * **30% Estructural:** Contenedores, tarjetas, bordes y superficies secundarias (`border-slate-800`, fondos `slate-900/80`, textos `slate-300`/`slate-400`).
+   * **10% Acento:** Color de llamada a la acción y estados focales (índigo/azul sobrio `indigo-600`, verde/rojo semántico desaturado y profesional).
+2. **Cero Emojis:** Prohibido el uso de emojis en toda la interfaz (nada de 🟢, 🔴, ⚡, ✍️, 🎯, etc.). Usar exclusivamente iconografía vectorial (SVG / Lucide) con trazos sobrios y consistentes.
+3. **Cero Datos Irrelevantes:** No colocar nombres de participantes, semestres ni créditos en la UI; la interfaz debe lucir como un software profesional y terminado.
+4. **Modal Unificado de Feedback:** Centralizar la presentación de errores, advertencias y confirmaciones en un único componente modal reutilizable.

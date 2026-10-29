@@ -1,9 +1,6 @@
 """
 Módulo de Ensamble Random Forest Classifier.
-
-Responsable: Gabriel (Capa 3B - ML)
-Implementa el entrenamiento del modelo de ensamble no lineal con árboles de decisión
-y ajuste de hiperparámetros con validación cruzada.
+Entrena el modelo de ensamble no lineal con árboles de decisión y validación cruzada.
 """
 
 from typing import Dict, Any, Tuple, List

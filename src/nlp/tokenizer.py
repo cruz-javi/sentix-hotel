@@ -1,7 +1,5 @@
 """
 Módulo de Tokenización de Texto.
-
-Responsable: Gabriel (Capa 2A - NLP)
 Segmenta el texto normalizado en una lista de unidades léxicas (tokens).
 """
 

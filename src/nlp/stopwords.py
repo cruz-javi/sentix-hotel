@@ -1,9 +1,7 @@
 """
 Módulo de Gestión de Stop Words en Español con Retención de Negaciones.
-
-Responsable: Javier (Capa 2B - NLP)
-Filtra palabras funcionales de alta frecuencia pero PRESERVA términos de negación
-('no', 'nunca', 'jamás', 'sin', 'tampoco') para no invertir la polaridad de sentimiento.
+Filtra palabras funcionales de alta frecuencia pero preserva términos de negación
+('no', 'nunca', 'jamás', 'sin', 'tampoco') para evitar invertir la polaridad de sentimiento.
 """
 
 from typing import List, Set
