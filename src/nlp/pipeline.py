@@ -1,10 +1,7 @@
 """
 Pipeline Integral de Preprocesamiento de NLP para Sentix-Hotel.
-
-Responsable: Javier (Capa 2E - NLP)
-Encapsula la secuencia completa de normalización, tokenización, stop words
-y morfología en un transformador compatible con Scikit-Learn (BaseEstimator, TransformerMixin).
-Garantiza reproducibilidad idéntica entre entrenamiento y producción.
+Transformador Scikit-Learn (BaseEstimator, TransformerMixin) que integra
+normalización, tokenización, filtrado de stopwords y morfología de forma reproducible.
 """
 
 from typing import List, Dict, Any, Union

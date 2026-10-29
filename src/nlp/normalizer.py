@@ -1,9 +1,7 @@
 """
 Módulo de Normalización de Texto.
-
-Responsable: Gabriel (Capa 2A - NLP)
-Realiza la limpieza básica de caracteres, minúsculas, remoción de URLs/HTML
-y estandarización de signos respetando el significado semántico.
+Realiza limpieza básica de caracteres, minúsculas, remoción de URLs/HTML
+y estandarización de signos preservando el significado semántico.
 """
 
 import re

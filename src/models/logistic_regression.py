@@ -1,9 +1,6 @@
 """
 Módulo de Regresión Logística y Ajuste de Hiperparámetros.
-
-Responsable: Javier (Capa 3A - ML)
-Implementa el entrenamiento del modelo lineal probabilístico, búsqueda en grilla
-con validación cruzada y extracción de coeficientes explicables.
+Entrena el clasificador lineal probabilístico con validación cruzada y extracción de coeficientes.
 """
 
 from typing import Dict, Any, Tuple, List

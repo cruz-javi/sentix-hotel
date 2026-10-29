@@ -1,9 +1,6 @@
 """
 Módulo de Evaluación de Modelos, Métricas y Análisis de Errores.
-
-Responsable: José (Capa 3C - ML)
-Calcula métricas de clasificación (Accuracy, Precision, Recall, F1), matrices
-de confusión y extrae casos de error para el análisis cualitativo exigido por el docente.
+Calcula métricas de clasificación, matrices de confusión y extrae casos de error.
 """
 
 from typing import Dict, Any, List

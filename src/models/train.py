@@ -1,8 +1,6 @@
 """
 Script Reproducible de Entrenamiento y Serialización del Pipeline.
-
-Responsable: Javier (Capa 3D - ML)
-Permite ir desde los datos crudos hasta el artefacto serializado con un solo comando:
+Permite entrenar, evaluar y exportar el artefacto de producción con:
     python -m src.models.train
 """
 

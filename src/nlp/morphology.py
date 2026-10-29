@@ -1,16 +1,16 @@
 """
-Módulo de Morfología: Stemming (NLTK) vs. Lematización (spaCy).
-
-Responsable: Gabriel (Capa 2C - NLP)
-Permite comparar empíricamente la reducción a raíces léxicas (stemming) frente
-a la reducción morfológica por lemas contextuales (lematización).
+Módulo de Morfología: Stemming vs. Lematización.
+Permite comparar la reducción a raíces léxicas frente a formas lematizadas contextuales.
 """
 
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
+import spacy
+from nltk.stem.snowball import SnowballStemmer
+
 from src.config import SPACY_MODEL_NAME
 
-# Variable global para cachear el modelo spaCy cargado
-_SPACY_NLP = None
+_SPACY_NLP: Optional[Any] = None
+_SPANISH_STEMMER: Optional[SnowballStemmer] = None
 
 
 def get_spacy_nlp():
@@ -18,12 +18,18 @@ def get_spacy_nlp():
     global _SPACY_NLP
     if _SPACY_NLP is None:
         try:
-            import spacy
             _SPACY_NLP = spacy.load(SPACY_MODEL_NAME, disable=["parser", "ner"])
         except Exception:
-            # Fallback seguro si el modelo descargado de spaCy aún no está presente
             _SPACY_NLP = False
     return _SPACY_NLP
+
+
+def get_spanish_stemmer() -> SnowballStemmer:
+    """Carga de forma perezosa el stemmer de Snowball en español."""
+    global _SPANISH_STEMMER
+    if _SPANISH_STEMMER is None:
+        _SPANISH_STEMMER = SnowballStemmer("spanish")
+    return _SPANISH_STEMMER
 
 
 def apply_stemming(tokens: List[str]) -> List[str]:
@@ -35,8 +41,7 @@ def apply_stemming(tokens: List[str]) -> List[str]:
     if not tokens:
         return []
 
-    from nltk.stem.snowball import SnowballStemmer
-    stemmer = SnowballStemmer("spanish")
+    stemmer = get_spanish_stemmer()
     return [stemmer.stem(token) for token in tokens]
 
 
