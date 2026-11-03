@@ -49,7 +49,16 @@ source venv/bin/activate
 
 # Instalar dependencias fijadas
 pip install -r requirements.txt
+
+# Reproducción exacta del entorno que generó el artefacto (opcional, recomendado)
+pip install -r requirements.lock.txt
+
+# Descargar el modelo de lematización en español (obligatorio para src/nlp/morphology.py)
+python -m spacy download es_core_news_sm
 ```
+
+> Si el comando `python` abre Microsoft Store, el entorno no está en el PATH del sistema.
+> Usa el lanzador `py -3` o invoca directamente `venv\Scripts\python.exe`.
 
 ### 2. Entrenar y Regenerar el Pipeline (1 solo comando)
 El script reproduce el preprocesamiento, entrena el modelo y exporta el artefacto serializado:
@@ -62,12 +71,34 @@ python -m src.models.train
 python -m pytest tests/
 ```
 
+Para auditar que el artefacto serializado coincide con la configuración vigente y con su reporte de métricas:
+```bash
+python -m src.models.verify_artifact
+```
+
 ### 4. Levantar la API Backend (FastAPI)
 ```bash
 uvicorn api.main:app --reload --port 8000
 ```
 La documentación interactiva Swagger estará disponible inmediatamente en:
 👉 [http://localhost:8000/docs](http://localhost:8000/docs)
+
+### 5. Arranque rápido en Windows (un solo comando)
+El script `start.ps1` prepara el entorno virtual, instala dependencias, descarga el modelo de spaCy, compila el frontend y levanta la API sirviendo la interfaz en el mismo puerto:
+```powershell
+powershell -ExecutionPolicy Bypass -File .\start.ps1
+```
+- Interfaz web: [http://127.0.0.1:8000](http://127.0.0.1:8000)
+- Documentación Swagger: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+
+### 6. Modo desarrollo del frontend (React + Vite, opcional)
+Requiere Node.js (LTS). Vite sirve en el puerto 3000 y redirige `/api` al backend del puerto 8000:
+```bash
+cd frontend
+npm install
+npm run build   # genera frontend/dist que la API sirve en la raíz
+npm run dev     # servidor de desarrollo con recarga en vivo
+```
 
 ---
 
@@ -79,6 +110,7 @@ La documentación interactiva Swagger estará disponible inmediatamente en:
 | `POST` | `/api/predict` | Clasifica una reseña (`{"text": "..."}`) y entrega sentimiento y probabilidades. |
 | `POST` | `/api/nlp-steps` | Devuelve el desglose paso a paso (normalizado, tokens, sin stopwords, lemas). |
 | `GET` | `/api/metrics` | Reporte de métricas ($F_1$-score, precision, recall) y matriz de confusión ($2 \times 2$). |
+| `GET` | `/api/config` | Configuración efectiva del pipeline (umbral, rango de n-gramas, morfología activa y negaciones) consumida por el frontend. |
 
 ---
 

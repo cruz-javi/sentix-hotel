@@ -3,11 +3,14 @@ Módulo de Morfología: Stemming vs. Lematización.
 Permite comparar la reducción a raíces léxicas frente a formas lematizadas contextuales.
 """
 
+import logging
 from typing import List, Dict, Any, Optional
 import spacy
 from nltk.stem.snowball import SnowballStemmer
 
 from src.config import SPACY_MODEL_NAME
+
+logger = logging.getLogger(__name__)
 
 _SPACY_NLP: Optional[Any] = None
 _SPANISH_STEMMER: Optional[SnowballStemmer] = None
@@ -19,9 +22,24 @@ def get_spacy_nlp():
     if _SPACY_NLP is None:
         try:
             _SPACY_NLP = spacy.load(SPACY_MODEL_NAME, disable=["parser", "ner"])
-        except Exception:
+        except Exception as exc:
+            # Sin el modelo instalado la lematización degrada a minúsculas; se advierte
+            # explícitamente para que la degradación no pase inadvertida en producción.
+            logger.warning(
+                "No se pudo cargar el modelo '%s' de spaCy (%s). "
+                "Ejecute: python -m spacy download %s",
+                SPACY_MODEL_NAME,
+                exc,
+                SPACY_MODEL_NAME,
+            )
             _SPACY_NLP = False
     return _SPACY_NLP
+
+
+def is_spacy_model_available() -> bool:
+    """Indica si el modelo de spaCy está cargado y disponible para lematizar."""
+    spacy_nlp = get_spacy_nlp()
+    return spacy_nlp is not None and spacy_nlp is not False
 
 
 def get_spanish_stemmer() -> SnowballStemmer:
@@ -59,9 +77,9 @@ def apply_lemmatization(tokens: List[str]) -> List[str]:
         text = " ".join(tokens)
         doc = nlp(text)
         return [token.lemma_ for token in doc if token.lemma_.strip()]
-    else:
-        # Si spaCy no está descargado aún, retorna los tokens en minúsculas
-        return [t.lower() for t in tokens]
+
+    # Degradación controlada: sin modelo de spaCy se conservan los tokens normalizados
+    return [t.lower() for t in tokens]
 
 
 def compare_stem_vs_lemma(sample_tokens: List[str]) -> List[Dict[str, str]]:

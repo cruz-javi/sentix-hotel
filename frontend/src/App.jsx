@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from './components/Navbar';
 import ReviewInput from './components/ReviewInput';
 import SentimentResult from './components/SentimentResult';
@@ -14,6 +14,29 @@ export default function App() {
   const [predictResult, setPredictResult] = useState(null);
   const [nlpSteps, setNlpSteps] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [runtimeConfig, setRuntimeConfig] = useState(null);
+
+  // La configuración efectiva (umbral, n-gramas, negaciones, límites) se solicita al
+  // backend para no duplicar en la interfaz los valores definidos en src/config.py.
+  useEffect(() => {
+    let isMounted = true;
+
+    async function fetchRuntimeConfig() {
+      try {
+        const response = await fetch('/api/config');
+        if (!response.ok) return;
+        const data = await response.json();
+        if (isMounted) setRuntimeConfig(data);
+      } catch (error) {
+        // Sin configuración remota los componentes mantienen sus valores por defecto
+      }
+    }
+
+    fetchRuntimeConfig();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Estado del modal de feedback unificado
   const [feedbackModal, setFeedbackModal] = useState({
@@ -164,10 +187,11 @@ export default function App() {
                   setText={setReviewText}
                   onAnalyze={handleAnalyze}
                   loading={loading}
+                  config={runtimeConfig}
                 />
               </div>
               <div className="lg:col-span-5 h-full">
-                <SentimentResult result={predictResult} />
+                <SentimentResult result={predictResult} config={runtimeConfig} />
               </div>
             </div>
 
@@ -185,7 +209,7 @@ export default function App() {
                     Abrir Vista Completa de PLN →
                   </button>
                 </div>
-                <NlpPipelineView nlpSteps={nlpSteps} loading={loading} />
+                <NlpPipelineView nlpSteps={nlpSteps} loading={loading} config={runtimeConfig} />
               </div>
             )}
           </div>
@@ -209,12 +233,14 @@ export default function App() {
                 Cambiar Texto
               </button>
             </div>
-            <NlpPipelineView nlpSteps={nlpSteps} loading={loading} />
+            <NlpPipelineView nlpSteps={nlpSteps} loading={loading} config={runtimeConfig} />
           </div>
         )}
 
         {/* Vista 3: Métricas del Modelo */}
-        {activeTab === 'metrics' && <MetricsDashboard onShowFeedback={handleShowFeedback} />}
+        {activeTab === 'metrics' && (
+          <MetricsDashboard onShowFeedback={handleShowFeedback} config={runtimeConfig} />
+        )}
 
         {/* Vista 4: Análisis por Lote CSV */}
         {activeTab === 'batch' && <BatchAnalysis onShowFeedback={handleShowFeedback} />}

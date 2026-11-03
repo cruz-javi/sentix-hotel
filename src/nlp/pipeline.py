@@ -35,6 +35,39 @@ class TextPreprocessor(BaseEstimator, TransformerMixin):
         """No requiere aprendizaje de estado; retorna a sí mismo."""
         return self
 
+    def _extract_lexical_units(self, text: str) -> Dict[str, Any]:
+        """
+        Ejecuta las tres primeras fases del pipeline sobre un texto crudo.
+
+        Centraliza normalización, tokenización y filtrado de stop words para que la
+        transformación masiva y el desglose paso a paso no puedan divergir.
+
+        Args:
+            text: Reseña cruda en español.
+
+        Returns:
+            Diccionario con texto normalizado, tokens y tokens sin stop words.
+        """
+        normalized = normalize_text(text, keep_accents=self.keep_accents)
+        if not normalized:
+            return {"normalized_text": "", "tokens": [], "tokens_no_stopwords": []}
+
+        tokens = tokenize_text(normalized)
+        tokens_no_stopwords = remove_stopwords(
+            tokens, include_custom=self.include_custom_stopwords
+        )
+        return {
+            "normalized_text": normalized,
+            "tokens": tokens,
+            "tokens_no_stopwords": tokens_no_stopwords,
+        }
+
+    def _reduce_morphology(self, tokens: List[str]) -> List[str]:
+        """Aplica la reducción morfológica activa: lematización o stemming."""
+        if self.use_lemmatization:
+            return apply_lemmatization(tokens)
+        return apply_stemming(tokens)
+
     def transform_single(self, text: str) -> str:
         """
         Ejecuta el pipeline completo sobre un único texto.
@@ -45,25 +78,8 @@ class TextPreprocessor(BaseEstimator, TransformerMixin):
         Returns:
             Cadena preprocesada con lemas o raíces separados por espacio.
         """
-        # 1. Normalización
-        normalized = normalize_text(text, keep_accents=self.keep_accents)
-        if not normalized:
-            return ""
-
-        # 2. Tokenización
-        tokens = tokenize_text(normalized)
-
-        # 3. Filtrado de Stop Words (conservando negaciones)
-        filtered_tokens = remove_stopwords(
-            tokens, include_custom=self.include_custom_stopwords
-        )
-
-        # 4. Reducción morfológica (Lematización o Stemming)
-        if self.use_lemmatization:
-            reduced_tokens = apply_lemmatization(filtered_tokens)
-        else:
-            reduced_tokens = apply_stemming(filtered_tokens)
-
+        lexical_units = self._extract_lexical_units(text)
+        reduced_tokens = self._reduce_morphology(lexical_units["tokens_no_stopwords"])
         return " ".join(reduced_tokens)
 
     def transform(self, X: Union[List[str], Any]) -> List[str]:
@@ -85,28 +101,21 @@ class TextPreprocessor(BaseEstimator, TransformerMixin):
         Utilizado por el endpoint /api/nlp-steps del backend para alimentar
         la vista interactiva del frontend requerida por la rúbrica del docente.
         """
-        # Etapa 1: Normalización
-        normalized = normalize_text(text, keep_accents=self.keep_accents)
+        lexical_units = self._extract_lexical_units(text)
+        no_stopwords = lexical_units["tokens_no_stopwords"]
 
-        # Etapa 2: Tokens
-        tokens = tokenize_text(normalized)
-
-        # Etapa 3: Tokens sin Stop Words (con negaciones retenidas)
-        no_stopwords = remove_stopwords(
-            tokens, include_custom=self.include_custom_stopwords
-        )
-
-        # Etapa 4: Raíces y Lemas
+        # Se calculan ambas morfologías para evidenciar la comparativa exigida por el curso
         stemmed = apply_stemming(no_stopwords)
         lemmatized = apply_lemmatization(no_stopwords)
+        active_tokens = lemmatized if self.use_lemmatization else stemmed
 
         return {
             "original_text": text,
-            "normalized_text": normalized,
-            "tokens": tokens,
+            "normalized_text": lexical_units["normalized_text"],
+            "tokens": lexical_units["tokens"],
             "tokens_no_stopwords": no_stopwords,
             "stemmed_tokens": stemmed,
             "lemmatized_tokens": lemmatized,
             "active_morphology": "lemmatization" if self.use_lemmatization else "stemming",
-            "final_processed_text": " ".join(lemmatized if self.use_lemmatization else stemmed),
+            "final_processed_text": " ".join(active_tokens),
         }

@@ -21,7 +21,19 @@ from src.config import (
     API_VERSION,
     API_DESCRIPTION,
     DEFAULT_DECISION_THRESHOLD,
+    MIN_WORD_COUNT,
+    MAX_TEXT_LENGTH,
+    USE_LEMMATIZATION,
+    SPACY_MODEL_NAME,
+    NEGATION_WORDS,
+    NGRAM_RANGE,
+    MAX_FEATURES,
+    MIN_DF,
+    MAX_DF,
+    SUBLINEAR_TF,
+    RANDOM_STATE,
 )
+from src.nlp.morphology import is_spacy_model_available
 from api.schemas import (
     PredictionRequest,
     PredictionResponse,
@@ -31,6 +43,7 @@ from api.schemas import (
     NlpStepsRequest,
     NlpStepsResponse,
     HealthResponse,
+    RuntimeConfigResponse,
 )
 
 # Estado global de la aplicación (artefactos cargados en memoria)
@@ -38,6 +51,10 @@ app_state: Dict[str, Any] = {
     "pipeline": None,
     "metrics_report": None,
 }
+
+# El nombre del código 422 cambió en versiones recientes de Starlette; se usa el entero
+# para mantener compatibilidad con ambas nomenclaturas sin generar avisos de deprecación.
+HTTP_422_UNPROCESSABLE = 422
 
 
 @asynccontextmanager
@@ -66,11 +83,13 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Configuración de CORS para permitir consumo desde Frontend local
+# Configuración de CORS para permitir consumo desde el frontend local.
+# No se habilitan credenciales porque el comodín "*" es incompatible con ellas según la
+# especificación CORS; el servicio no usa cookies ni autenticación.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -84,6 +103,37 @@ async def health_check():
         service=API_TITLE,
         model_loaded=app_state["pipeline"] is not None,
         version=API_VERSION,
+        active_morphology="lemmatization" if USE_LEMMATIZATION else "stemming",
+        spacy_model_loaded=is_spacy_model_available(),
+    )
+
+
+@app.get("/api/config", response_model=RuntimeConfigResponse, tags=["Configuración"])
+async def get_runtime_config():
+    """
+    Expone la configuración efectiva del pipeline en tiempo de ejecución.
+
+    Evita que el frontend duplique umbrales, rangos de n-gramas o listas de negaciones:
+    cualquier cambio en src/config.py se refleja automáticamente en la interfaz.
+    """
+    metrics_report = app_state.get("metrics_report") or {}
+    return RuntimeConfigResponse(
+        model_name=metrics_report.get("model_name", "LogisticRegression_Tfidf"),
+        model_version=API_VERSION,
+        decision_threshold=DEFAULT_DECISION_THRESHOLD,
+        min_word_count=MIN_WORD_COUNT,
+        max_text_length=MAX_TEXT_LENGTH,
+        use_lemmatization=USE_LEMMATIZATION,
+        active_morphology="lemmatization" if USE_LEMMATIZATION else "stemming",
+        spacy_model_name=SPACY_MODEL_NAME,
+        spacy_model_loaded=is_spacy_model_available(),
+        negation_words=list(NEGATION_WORDS),
+        ngram_range=list(NGRAM_RANGE),
+        max_features=MAX_FEATURES,
+        min_df=MIN_DF,
+        max_df=MAX_DF,
+        sublinear_tf=SUBLINEAR_TF,
+        random_state=RANDOM_STATE,
     )
 
 
@@ -147,6 +197,25 @@ async def predict_batch(request: BatchPredictionRequest):
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Ninguno de los textos proporcionados contiene caracteres válidos.",
             )
+
+        # Validación por elemento equivalente a la del endpoint individual, para que el
+        # lote no admita entradas que el clasificador no podría procesar correctamente.
+        for position, text_item in enumerate(valid_texts, start=1):
+            if len(text_item) > MAX_TEXT_LENGTH:
+                raise HTTPException(
+                    status_code=HTTP_422_UNPROCESSABLE,
+                    detail=(
+                        f"La reseña #{position} excede el límite de {MAX_TEXT_LENGTH} caracteres."
+                    ),
+                )
+            if len(text_item.split()) < MIN_WORD_COUNT:
+                raise HTTPException(
+                    status_code=HTTP_422_UNPROCESSABLE,
+                    detail=(
+                        f"La reseña #{position} tiene menos de {MIN_WORD_COUNT} palabras "
+                        "y no aporta señal suficiente para clasificar."
+                    ),
+                )
 
         probabilities = pipeline.predict_proba(valid_texts)
         results = []

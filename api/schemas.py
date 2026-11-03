@@ -111,3 +111,32 @@ class HealthResponse(BaseModel):
     service: str
     model_loaded: bool
     version: str
+    active_morphology: str = Field(
+        default="lemmatization",
+        description="Técnica morfológica activa: 'lemmatization' o 'stemming'",
+    )
+    spacy_model_loaded: bool = Field(
+        default=False,
+        description="Indica si el modelo de spaCy está cargado; en caso contrario la lematización degrada a minúsculas",
+    )
+
+
+class RuntimeConfigResponse(BaseModel):
+    """Configuración efectiva del pipeline expuesta para evitar duplicarla en el frontend."""
+
+    model_name: str
+    model_version: str
+    decision_threshold: float
+    min_word_count: int
+    max_text_length: int
+    use_lemmatization: bool
+    active_morphology: str
+    spacy_model_name: str
+    spacy_model_loaded: bool
+    negation_words: List[str]
+    ngram_range: List[int]
+    max_features: int
+    min_df: int
+    max_df: float
+    sublinear_tf: bool
+    random_state: int

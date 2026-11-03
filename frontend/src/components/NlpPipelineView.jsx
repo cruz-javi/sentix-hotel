@@ -1,9 +1,10 @@
 import React from 'react';
 import { Layers, ArrowDown, CheckCircle2, ShieldCheck, Cpu, Filter, Type } from 'lucide-react';
 
-const NEGATION_WORDS = new Set(['no', 'nunca', 'jamas', 'tampoco', 'sin', 'nada', 'nadie', 'ni']);
+// Valores de respaldo: la lista efectiva proviene de /api/config (src/config.py)
+const DEFAULT_NEGATION_WORDS = ['no', 'nunca', 'jamas', 'tampoco', 'sin', 'nada', 'nadie'];
 
-export default function NlpPipelineView({ nlpSteps, loading }) {
+export default function NlpPipelineView({ nlpSteps, loading, config }) {
   if (loading) {
     return (
       <div className="bg-slate-900 border border-slate-800 p-8 rounded-2xl text-center py-16 space-y-3">
@@ -26,6 +27,14 @@ export default function NlpPipelineView({ nlpSteps, loading }) {
     );
   }
 
+  const negationWords = new Set(
+    (config?.negation_words || DEFAULT_NEGATION_WORDS).map((word) => word.toLowerCase())
+  );
+  const activeMorphologyTokens =
+    nlpSteps.active_morphology === 'stemming' ? nlpSteps.stemmed_tokens : nlpSteps.lemmatized_tokens;
+  const ngramRange = config?.ngram_range || [1, 2];
+  const ngramLabel = `${ngramRange[0]}-gramas${ngramRange[1] > 1 ? ` + ${ngramRange[1]}-gramas` : ''}`;
+
   return (
     <div className="bg-slate-900 border border-slate-800 p-6 sm:p-8 rounded-2xl shadow-xl space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2 border-b border-slate-800 pb-4">
@@ -44,7 +53,6 @@ export default function NlpPipelineView({ nlpSteps, loading }) {
           Morfología: {nlpSteps.active_morphology}
         </span>
       </div>
-
       <div className="space-y-4">
         {/* Etapa 1: Normalización */}
         <div className="p-4 rounded-xl bg-slate-950/70 border border-slate-800 space-y-2.5">
@@ -117,7 +125,7 @@ export default function NlpPipelineView({ nlpSteps, loading }) {
           </div>
           <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto p-3 rounded-lg bg-slate-900 border border-slate-800">
             {nlpSteps.tokens_no_stopwords.map((token, idx) => {
-              const isNegation = NEGATION_WORDS.has(token.toLowerCase());
+              const isNegation = negationWords.has(token.toLowerCase());
               return (
                 <span
                   key={idx}
@@ -145,7 +153,7 @@ export default function NlpPipelineView({ nlpSteps, loading }) {
             <span className="text-xs font-semibold text-slate-200 flex items-center gap-1.5 uppercase tracking-wider">
               <CheckCircle2 className="w-3.5 h-3.5 text-indigo-400" /> Fase 4: Reducción Morfológica y Texto Vectorizable
             </span>
-            <span className="text-[11px] text-slate-400">Matriz TF-IDF (1-gramas + 2-gramas)</span>
+            <span className="text-[11px] text-slate-400">Matriz TF-IDF ({ngramLabel})</span>
           </div>
           <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 font-mono text-xs space-y-2">
             <div>
@@ -153,7 +161,7 @@ export default function NlpPipelineView({ nlpSteps, loading }) {
                 Tokens Procesados Finales:
               </span>
               <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
-                {nlpSteps.lemmatized_tokens.map((token, idx) => (
+                {activeMorphologyTokens.map((token, idx) => (
                   <span
                     key={idx}
                     className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700"

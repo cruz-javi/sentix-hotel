@@ -5,6 +5,7 @@ Pruebas Automatizadas de los Endpoints de la API REST FastAPI.
 import pytest
 from fastapi.testclient import TestClient
 from api.main import app
+from src.config import DEFAULT_DECISION_THRESHOLD, NGRAM_RANGE, MAX_FEATURES, MIN_WORD_COUNT
 
 
 @pytest.fixture
@@ -69,3 +70,70 @@ def test_metrics_endpoint(client):
     assert "metrics" in data
     assert "accuracy" in data["metrics"]
     assert "confusion_matrix" in data
+
+
+def test_config_endpoint_exposes_pipeline_settings(client):
+    """La configuración del backend es la única fuente de verdad para el frontend."""
+    response = client.get("/api/config")
+    assert response.status_code == 200
+    data = response.json()
+
+    assert data["decision_threshold"] == DEFAULT_DECISION_THRESHOLD
+    assert data["ngram_range"] == list(NGRAM_RANGE)
+    assert data["max_features"] == MAX_FEATURES
+    assert data["min_word_count"] == MIN_WORD_COUNT
+    assert data["active_morphology"] in {"lemmatization", "stemming"}
+    assert "no" in data["negation_words"]
+    assert "nunca" in data["negation_words"]
+    assert isinstance(data["spacy_model_loaded"], bool)
+
+
+def test_health_exposes_morphology_status(client):
+    response = client.get("/api/health")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["active_morphology"] in {"lemmatization", "stemming"}
+    assert isinstance(data["spacy_model_loaded"], bool)
+
+
+def test_prediction_class_follows_configured_threshold(client):
+    response = client.post(
+        "/api/predict",
+        json={"text": "El hotel fue una maravilla total, la comida deliciosa y el trato excelente."},
+    )
+    assert response.status_code == 200
+    data = response.json()
+    expected_class = 1 if data["probability_positive"] >= DEFAULT_DECISION_THRESHOLD else 0
+    assert data["sentiment_class"] == expected_class
+
+
+def test_predict_batch_endpoint(client):
+    texts = [
+        "El hotel fue una maravilla, la comida deliciosa y las camas muy cómodas.",
+        "Pésima experiencia, la habitación estaba sucia y olía a humedad.",
+    ]
+    response = client.post("/api/predict-batch", json={"texts": texts})
+    assert response.status_code == 200
+    data = response.json()
+
+    assert data["total_reviews"] == 2
+    assert data["positive_count"] + data["negative_count"] == data["total_reviews"]
+    assert abs(data["positive_ratio"] + data["negative_ratio"] - 1.0) < 1e-6
+    assert len(data["results"]) == 2
+    assert [item["index"] for item in data["results"]] == [1, 2]
+    assert all("sentiment_label" in item for item in data["results"])
+
+
+def test_predict_batch_rejects_entries_below_minimum_words(client):
+    response = client.post(
+        "/api/predict-batch",
+        json={"texts": ["hola", "El hotel fue excelente en todos los aspectos."]},
+    )
+    assert response.status_code == 422
+    assert "palabras" in response.json()["detail"]
+
+
+def test_predict_batch_rejects_excessive_length(client):
+    response = client.post("/api/predict-batch", json={"texts": ["palabra " * 1000]})
+    assert response.status_code == 422
+    assert "caracteres" in response.json()["detail"]

@@ -45,8 +45,8 @@ def clean_special_characters(text: str, keep_accents: bool = True) -> str:
             if unicodedata.category(c) != "Mn"
         )
 
-    # Conserva letras en español (incluyendo á, é, í, ó, ú, ñ), números y espacios
-    text = re.sub(r"[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]", " ", text)
+    # Conserva letras en español (incluyendo á, é, í, ó, ú, ü, ñ), números y espacios
+    text = re.sub(r"[^a-zA-Z0-9áéíóúÁÉÍÓÚüÜñÑ\s]", " ", text)
     # Colapsa espacios múltiples a uno solo
     text = re.sub(r"\s+", " ", text).strip()
     return text

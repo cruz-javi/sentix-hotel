@@ -80,6 +80,9 @@ LOGISTIC_REGRESSION_GRID: Dict[str, List[Any]] = {
     "classifier__C": [0.01, 0.1, 1.0, 5.0, 10.0],
 }
 
+# Número de pliegues de la validación cruzada estratificada aplicada en el entrenamiento
+CV_FOLDS: int = 5
+
 # Random Forest Classifier (Modelo de Ensamble No Lineal)
 RANDOM_FOREST_DEFAULT_PARAMS: Dict[str, Any] = {
     "n_estimators": 100,

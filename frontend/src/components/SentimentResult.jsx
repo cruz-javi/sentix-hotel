@@ -1,7 +1,7 @@
 import React from 'react';
 import { CheckCircle2, AlertTriangle, Scale, Target, Activity } from 'lucide-react';
 
-export default function SentimentResult({ result }) {
+export default function SentimentResult({ result, config }) {
   if (!result) {
     return (
       <div className="bg-slate-900 border border-slate-800 h-full p-6 rounded-2xl shadow-xl flex flex-col justify-center items-center text-center py-12 text-slate-500 space-y-3">
@@ -18,6 +18,8 @@ export default function SentimentResult({ result }) {
   const pPos = (result.probability_positive * 100).toFixed(1);
   const pNeg = (result.probability_negative * 100).toFixed(1);
   const confidence = (result.confidence * 100).toFixed(1);
+  const modelName = config?.model_name || 'LogisticRegression_Tfidf';
+  const decisionThreshold = config?.decision_threshold ?? 0.5;
 
   return (
     <div className="bg-slate-900 border border-slate-800 h-full p-6 rounded-2xl shadow-xl flex flex-col justify-between space-y-4">
@@ -97,9 +99,12 @@ export default function SentimentResult({ result }) {
       <div className="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800/80">
         <span className="flex items-center gap-1.5">
           <Activity className="w-3.5 h-3.5 text-indigo-400" />
-          Modelo: <strong className="text-slate-300 font-medium">LogisticRegression</strong>
+          Modelo: <strong className="text-slate-300 font-medium">{modelName}</strong>
         </span>
-        <span>Umbral de decisión: <strong className="text-slate-300 font-mono">0.50</strong></span>
+        <span>
+          Umbral de decisión:{' '}
+          <strong className="text-slate-300 font-mono">{decisionThreshold.toFixed(2)}</strong>
+        </span>
       </div>
     </div>
   );

@@ -1,7 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { AlertCircle, CheckCircle2, AlertTriangle, Info, X } from 'lucide-react';
 
 export default function FeedbackModal({ isOpen, onClose, type = 'info', title, message, details }) {
+  const dialogRef = useRef(null);
+
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') {
@@ -10,6 +12,8 @@ export default function FeedbackModal({ isOpen, onClose, type = 'info', title, m
     };
     if (isOpen) {
       window.addEventListener('keydown', handleKeyDown);
+      // El foco entra en el diálogo para que lectores de pantalla y teclado lo alcancen
+      dialogRef.current?.focus();
     }
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
@@ -50,10 +54,13 @@ export default function FeedbackModal({ isOpen, onClose, type = 'info', title, m
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm transition-opacity"
       role="dialog"
       aria-modal="true"
+      aria-labelledby="feedback-modal-title"
       onClick={onClose}
     >
       <div
-        className={`w-full max-w-md bg-slate-900 border ${current.accentBorder} rounded-2xl shadow-2xl p-6 space-y-4 relative transform transition-all`}
+        ref={dialogRef}
+        tabIndex={-1}
+        className={`w-full max-w-md bg-slate-900 border ${current.accentBorder} rounded-2xl shadow-2xl p-6 space-y-4 relative transform transition-all focus:outline-none`}
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -70,7 +77,7 @@ export default function FeedbackModal({ isOpen, onClose, type = 'info', title, m
             {current.icon}
           </div>
           <div className="space-y-1 pr-6">
-            <h3 className="text-base font-semibold text-slate-100 tracking-tight">
+            <h3 id="feedback-modal-title" className="text-base font-semibold text-slate-100 tracking-tight">
               {title}
             </h3>
             <p className="text-xs text-slate-300 leading-relaxed">

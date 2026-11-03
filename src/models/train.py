@@ -5,7 +5,6 @@ Permite entrenar, evaluar y exportar el artefacto de producción con:
 """
 
 import json
-from pathlib import Path
 import joblib
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -18,9 +17,9 @@ from src.config import (
     DATA_PROCESSED_DIR,
     RANDOM_STATE,
     TEST_SIZE,
+    CV_FOLDS,
 )
-from src.nlp.pipeline import TextPreprocessor
-from src.models.logistic_regression import build_logistic_regression_pipeline
+from src.models.logistic_regression import train_logistic_regression_cv
 from src.models.evaluate import (
     calculate_classification_metrics,
     compute_confusion_matrix,
@@ -64,10 +63,14 @@ def train_and_export():
     X_test = test_df["review_text"].astype(str).tolist()
     y_test = test_df["sentiment"].astype(int).tolist()
 
-    # 2. Construir y ajustar pipeline
-    print("2. Ajustando pipeline (Preprocesamiento NLP + TF-IDF + Regresión Logística)...")
-    pipeline = build_logistic_regression_pipeline()
-    pipeline.fit(X_train, y_train)
+    # 2. Ajuste con búsqueda de hiperparámetros sobre validación cruzada estratificada
+    print(f"2. Ajustando pipeline con validación cruzada ({CV_FOLDS} pliegues)...")
+    print("   (Preprocesamiento NLP + TF-IDF + Regresión Logística con GridSearchCV)")
+    pipeline, tuning_info = train_logistic_regression_cv(
+        X_train, y_train, cv_folds=CV_FOLDS
+    )
+    print(f"   Mejor F1 macro en CV: {tuning_info['best_cv_score']:.4f}")
+    print(f"   Hiperparámetros óptimos: {tuning_info['best_params']}")
 
     # 3. Evaluación en conjunto de prueba
     print("3. Evaluando en conjunto de prueba aislado...")
@@ -92,6 +95,7 @@ def train_and_export():
     # Guardar reporte de métricas en JSON
     report_data = {
         "model_name": "LogisticRegression_Tfidf",
+        "tuning": tuning_info,
         "metrics": metrics,
         "confusion_matrix": cm,
         "error_analysis_samples": errors,

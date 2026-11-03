@@ -8,12 +8,17 @@ const EXAMPLES = {
   mixed: "Las instalaciones y la piscina son hermosas, aunque el wifi no funcionaba bien en la habitación."
 };
 
-export default function ReviewInput({ text, setText, onAnalyze, loading }) {
+export default function ReviewInput({ text, setText, onAnalyze, loading, config }) {
   const handleKeyDown = (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
       onAnalyze();
     }
   };
+
+  const maxTextLength = config?.max_text_length ?? 5000;
+  const minWordCount = config?.min_word_count ?? 3;
+  const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
+  const isTooShort = wordCount > 0 && wordCount < minWordCount;
 
   return (
     <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
@@ -22,8 +27,8 @@ export default function ReviewInput({ text, setText, onAnalyze, loading }) {
           <FileEdit className="w-4 h-4 text-indigo-400" />
           <span>Ingreso de Reseña Hotelera:</span>
         </label>
-        <span className="text-xs text-slate-500 font-mono">
-          {text.length} caracteres
+        <span className={`text-xs font-mono ${isTooShort ? 'text-amber-400' : 'text-slate-500'}`}>
+          {text.length}/{maxTextLength} caracteres · {wordCount} palabras
         </span>
       </div>
 
@@ -31,11 +36,18 @@ export default function ReviewInput({ text, setText, onAnalyze, loading }) {
         id="review-textarea"
         rows={4}
         value={text}
+        maxLength={maxTextLength}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="Ejemplo: Las instalaciones del hotel superaron nuestras expectativas, la habitación amplia y el personal muy atento..."
         className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3.5 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition resize-none leading-relaxed"
       />
+
+      {isTooShort && (
+        <p className="text-[11px] text-amber-400">
+          Se requieren al menos {minWordCount} palabras para que el backend acepte la reseña.
+        </p>
+      )}
 
       {/* Botones de prueba predefinidos con iconografía sobria */}
       <div className="space-y-2">

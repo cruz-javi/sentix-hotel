@@ -62,7 +62,7 @@ def run_demo_examples():
         "Buena ubicación cerca de la playa, aunque el wifi fallaba a veces, en general recomendable.",
         "No me gustó nada la atención del personal de recepción, muy lentos y sin ganas de ayudar.",
     ]
-    print("\n Ejcutando ejemplos de demostración de Sentix-Hotel...")
+    print("\n Ejecutando ejemplos de demostración de Sentix-Hotel...")
     for ex in examples:
         predict_text(ex)
 

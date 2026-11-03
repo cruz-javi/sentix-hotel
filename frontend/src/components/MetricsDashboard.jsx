@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { BarChart3, AlertOctagon, CheckCircle2, TrendingUp, Info, RefreshCw, Search } from 'lucide-react';
 
-export default function MetricsDashboard({ onShowFeedback }) {
+export default function MetricsDashboard({ onShowFeedback, config }) {
   const [metricsData, setMetricsData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -64,6 +64,12 @@ export default function MetricsDashboard({ onShowFeedback }) {
 
   const { metrics, confusion_matrix, error_analysis_samples } = metricsData;
   const totalTest = confusion_matrix.true_negatives + confusion_matrix.false_positives + confusion_matrix.false_negatives + confusion_matrix.true_positives;
+
+  // Parámetros efectivos reportados por el backend (/api/config)
+  const ngramRange = config?.ngram_range || [1, 2];
+  const maxFeatures = config?.max_features ?? 5000;
+  const randomState = config?.random_state ?? 42;
+  const activeMorphology = config?.active_morphology || 'lemmatization';
 
   return (
     <div className="space-y-6">
@@ -213,9 +219,10 @@ export default function MetricsDashboard({ onShowFeedback }) {
           <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800 text-[11px] text-slate-400 space-y-1">
             <span className="font-semibold text-slate-300">Parámetros Centralizados (src/config.py):</span>
             <ul className="list-disc list-inside space-y-0.5 text-slate-400 font-mono">
-              <li>Rango n-gramas: (1, 2)</li>
-              <li>Características máximas: 5,000</li>
-              <li>Semilla: RANDOM_STATE = 42</li>
+              <li>Rango n-gramas: ({ngramRange[0]}, {ngramRange[1]})</li>
+              <li>Características máximas: {maxFeatures.toLocaleString('es-ES')}</li>
+              <li>Semilla: RANDOM_STATE = {randomState}</li>
+              <li>Morfología activa: {activeMorphology}</li>
             </ul>
           </div>
         </div>
