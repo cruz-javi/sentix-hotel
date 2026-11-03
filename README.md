@@ -1,120 +1,113 @@
-# Sentix-Hotel 🏨📊
+# Sentix-Hotel
 ### Plataforma Inteligente de Análisis de Sentimiento y Minería de Opinión en Reseñas de Hospedaje en Español
 
 Proyecto Integrador para la materia **Tópicos y Programación Avanzada** (Primer Parcial).
 
 ---
 
-## 👥 Equipo de Desarrollo
-* **Javier:** Arquitectura general, pipeline unificado de NLP, Regresión Logística y API REST (FastAPI).
-* **José:** Análisis Exploratorio de Datos (EDA), vectorización TF-IDF con N-gramas y evaluación comparativa de modelos.
-* **Gabriel:** Normalización, tokenización, comparativa morfológica (Stemming vs. Lematización) y Random Forest.
+## 1. Documentación Oficial para la Presentación y Evaluación
+
+En cumplimiento con los entregables obligatorios establecidos en la Sección 7 de la guía del proyecto:
+
+* **Informe Técnico Oficial:** [`docs/informe_tecnico.md`](docs/informe_tecnico.md) (Problema, dataset, decisiones de PLN, comparativa empírica de modelos y arquitectura).
+* **Diapositivas de la Exposición:** [`docs/diapositivas_presentacion.html`](docs/diapositivas_presentacion.html) (Presentación interactiva de 10 minutos con métricas, gráficos y temporizador, ejecutable en cualquier navegador).
+* **Registro de Aportes y Commits:** [`CONTRIBUCIONES.md`](CONTRIBUCIONES.md) (Trazabilidad comprobable de tareas y commits por integrante).
+* **Notebook de EDA y Experimentos:** [`notebooks/01_eda_exploratorio.ipynb`](notebooks/01_eda_exploratorio.ipynb) (Ejecutado con outputs y distribuciones visuales).
 
 ---
 
-## 🏛️ Arquitectura del Sistema (5 Capas)
+## 2. Arquitectura del Sistema (5 Capas Desacopladas)
 
-```
+```text
 [ Capa 1: Datos y EDA ]
-           ↓
-[ Capa 2: Pipeline de NLP ]  ──→  [ models/sentix_pipeline.joblib ]
-           ↓                                     ↓
-[ Capa 3: Modelado ML ]      ──→  [ models/metrics_report.json ]
-                                                 ↓
-[ Capa 5: Frontend Web ]     ←──  [ Capa 4: API REST (FastAPI) ]
+       │  (data/raw/hotel_reviews_es.csv ──→ notebooks/01_eda_exploratorio.ipynb)
+       ▼
+[ Capa 2: Pipeline de PLN ]  ──→  Serialización Joblib  ──→  [ models/sentix_pipeline.joblib ]
+       │  (Normalizer, Tokenizer, Stopwords, Morphology)             │
+       ▼                                                             ▼
+[ Capa 3: Modelado ML ]      ──→  Auditoría y Métricas  ──→  [ models/metrics_report.json ]
+       │  (LogisticRegression + GridSearchCV)                         │
+       ▼                                                             ▼
+[ Capa 4: Backend REST ] ◄────────────────────────────────────────┘
+       │  (FastAPI: /predict, /predict-batch, /nlp-steps, /metrics, /config, /health)
+       ▼
+[ Capa 5: Frontend UI ]
+          (React 18 + Vite + Tailwind CSS: Clasificador en vivo, PLN paso a paso, Métricas y Batch)
 ```
 
-1. **Capa de Datos y EDA:** Dataset de más de 4.400 reseñas de hoteles en español balanceadas 50/50, análisis de longitud y split estratificado 80/20 train/test con semilla fija (`random_state=42`).
-2. **Capa de NLP:** Normalización, tokenización, stop words con **retención estricta de palabras de negación** (`no`, `nunca`, `jamás`, `tampoco`, `sin`), comparativa de Stemming (NLTK) vs. Lematización (spaCy), y vectorización TF-IDF con unigramas y bigramas.
-3. **Capa de Machine Learning:** Regresión Logística multivariable (interpretable con pesos de coeficientes) vs. Random Forest Classifier, optimizados con validación cruzada ($k=5$) y exportados mediante `joblib`.
-4. **Capa de Backend (FastAPI):** API REST desacoplada que carga el artefacto `.joblib`, valida con esquemas Pydantic y expone `/api/predict`, `/api/nlp-steps`, `/api/metrics` y `/api/health`.
-5. **Capa de Frontend:** Interfaz web interactiva con simulador de reseñas, visualizador del pipeline paso a paso y panel de métricas.
+1. **Capa 1 (Datos):** Corpus de 4.468 reseñas en español balanceadas 50/50 y split estratificado 80/20 train/test con semilla fija (`random_state=42`).
+2. **Capa 2 (PLN):** Normalización (tildes, diéresis), tokenización, stop words con **retención estricta de palabras de negación** (`no`, `nunca`, `jamás`, `sin`, `tampoco`), comparativa de Stemming (NLTK) vs. Lematización (spaCy), y vectorización TF-IDF con unigramas y bigramas.
+3. **Capa 3 (Modelado):** Regresión Logística optimizada con validación cruzada ($k=5$, $F_1=96,42\%$) frente a Random Forest ($F_1=94,74\%$), exportada mediante Joblib.
+4. **Capa 4 (Backend):** API REST en FastAPI que carga el pipeline serializado sin reimplementar preprocesamiento a mano, valida con Pydantic y sirve la interfaz web.
+5. **Capa 5 (Frontend):** Aplicación web interactiva en React 18, Vite y Tailwind CSS bajo la regla 60-30-10, cero emojis y modal unificado de feedback.
 
 ---
 
-## 🚀 Instalación y Puesta en Marcha
+## 3. Puesta en Marcha y Ejecución
 
-### 1. Clonar el repositorio y configurar entorno
-```bash
-# Clonar el proyecto
-git clone <URL_DEL_REPOSITORIO>
-cd proyecto1
-
-# Crear y activar entorno virtual
-python -m venv venv
-# En Windows:
-venv\Scripts\activate
-# En Linux/macOS:
-source venv/bin/activate
-
-# Instalar dependencias fijadas
-pip install -r requirements.txt
-
-# Reproducción exacta del entorno que generó el artefacto (opcional, recomendado)
-pip install -r requirements.lock.txt
-
-# Descargar el modelo de lematización en español (obligatorio para src/nlp/morphology.py)
-python -m spacy download es_core_news_sm
-```
-
-> Si el comando `python` abre Microsoft Store, el entorno no está en el PATH del sistema.
-> Usa el lanzador `py -3` o invoca directamente `venv\Scripts\python.exe`.
-
-### 2. Entrenar y Regenerar el Pipeline (1 solo comando)
-El script reproduce el preprocesamiento, entrena el modelo y exporta el artefacto serializado:
-```bash
-python -m src.models.train
-```
-
-### 3. Ejecutar la Suite de Pruebas Automatizadas
-```bash
-python -m pytest tests/
-```
-
-Para auditar que el artefacto serializado coincide con la configuración vigente y con su reporte de métricas:
-```bash
-python -m src.models.verify_artifact
-```
-
-### 4. Levantar la API Backend (FastAPI)
-```bash
-uvicorn api.main:app --reload --port 8000
-```
-La documentación interactiva Swagger estará disponible inmediatamente en:
-👉 [http://localhost:8000/docs](http://localhost:8000/docs)
-
-### 5. Arranque rápido en Windows (un solo comando)
-El script `start.ps1` prepara el entorno virtual, instala dependencias, descarga el modelo de spaCy, compila el frontend y levanta la API sirviendo la interfaz en el mismo puerto:
+### Opción A: Arranque Rápido en Windows (Recomendado, un solo comando)
+El script automatiza la verificación del entorno virtual, dependencias, modelo de spaCy, compilación del frontend y levanta la API sirviendo la interfaz web completa:
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\start.ps1
 ```
-- Interfaz web: [http://127.0.0.1:8000](http://127.0.0.1:8000)
-- Documentación Swagger: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+* **Aplicación Web:** [http://127.0.0.1:8000](http://127.0.0.1:8000)
+* **Documentación Swagger API:** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
-### 6. Modo desarrollo del frontend (React + Vite, opcional)
-Requiere Node.js (LTS). Vite sirve en el puerto 3000 y redirige `/api` al backend del puerto 8000:
+### Opción B: Arranque Manual con Entorno Virtual
 ```bash
-cd frontend
-npm install
-npm run build   # genera frontend/dist que la API sirve en la raíz
-npm run dev     # servidor de desarrollo con recarga en vivo
+# 1. Activar entorno virtual
+# En Windows (PowerShell):
+.\.venv\Scripts\Activate.ps1
+# En Windows (Git Bash):
+source .venv/Scripts/activate
+
+# 2. Iniciar el servidor unificado
+python run.py
+```
+
+### Opción C: Despliegue en Contenedores Docker (Valor Agregado)
+Para levantar la solución completa en cualquier sistema operativo sin dependencias locales:
+```bash
+docker compose up --build
 ```
 
 ---
 
-## 🛠️ Endpoints Principales de la API
+## 4. Auditoría, Pruebas y Reproducibilidad
 
-| Método | Endpoint | Descripción |
-| :--- | :--- | :--- |
-| `GET` | `/api/health` | Estado del servicio y confirmación de modelo en memoria. |
-| `POST` | `/api/predict` | Clasifica una reseña (`{"text": "..."}`) y entrega sentimiento y probabilidades. |
-| `POST` | `/api/nlp-steps` | Devuelve el desglose paso a paso (normalizado, tokens, sin stopwords, lemas). |
-| `GET` | `/api/metrics` | Reporte de métricas ($F_1$-score, precision, recall) y matriz de confusión ($2 \times 2$). |
-| `GET` | `/api/config` | Configuración efectiva del pipeline (umbral, rango de n-gramas, morfología activa y negaciones) consumida por el frontend. |
+El proyecto cuenta con scripts reproducibles de un solo comando:
+
+```bash
+# 1. Ejecutar las 26 pruebas automatizadas de API, PLN y modelos
+python -m pytest tests/
+
+# 2. Auditar coherencia entre el artefacto serializado, config y métricas
+python -m src.models.verify_artifact
+
+# 3. Reentrenar el pipeline completo desde los datos crudos
+python -m src.models.train
+
+# 4. Ejecutar el benchmark comparativo entre modelos y técnicas de PLN
+python -m src.models.benchmark
+```
 
 ---
 
-## 📂 Estructura del Repositorio
+## 5. Endpoints de la API REST
+
+| Método | Endpoint | Descripción |
+| :--- | :--- | :--- |
+| `GET` | `/api/health` | Estado del servicio y confirmación de modelo cargado en memoria. |
+| `POST` | `/api/predict` | Clasificación individual de polaridad y probabilidades estimadas. |
+| `POST` | `/api/predict-batch` | Clasificación masiva por lote para procesamiento de archivos CSV. |
+| `POST` | `/api/nlp-steps` | Desglose paso a paso de las 4 fases de PLN aplicadas al texto. |
+| `GET` | `/api/metrics` | Reporte completo de métricas ($F_1$, precisión, recall, matriz $2 \times 2$ y análisis de errores). |
+| `GET` | `/api/config` | Configuración efectiva del pipeline en tiempo de ejecución (`src/config.py`). |
+| `GET` | `/docs` | Documentación interactiva Swagger UI. |
+
+---
+
+## 6. Estructura del Repositorio
 
 ```text
 proyecto1/
@@ -122,15 +115,22 @@ proyecto1/
 ├── data/
 │   ├── raw/                 # Dataset crudo (hotel_reviews_es.csv)
 │   └── processed/           # Particiones train/test estratificadas
-├── docs/                    # Documentación técnica y diagramas
+├── docs/                    # Documentación oficial para la presentación
+│   ├── informe_tecnico.md   # Informe técnico breve solicitado por el docente
+│   └── diapositivas_presentacion.html # Diapositivas interactivas (10 min)
 ├── models/                  # Artefactos serializados (.joblib y métricas JSON)
-├── notebooks/               # Jupyter Notebooks de EDA (01_eda_exploratorio.ipynb)
+├── notebooks/               # Jupyter Notebook de EDA ejecutado con outputs
 ├── src/
 │   ├── config.py            # Configuración centralizada e hiperparámetros
-│   ├── nlp/                 # Módulos de limpieza, tokenización, stopwords y pipeline
-│   └── models/              # Scripts de modelado, tuning y evaluación
-├── tests/                   # Pruebas automatizadas con Pytest
-├── requirements.txt         # Dependencias del proyecto
-├── CONTRIBUCIONES.md        # Registro de aportes y trazabilidad por integrante
-└── README.md
+│   ├── nlp/                 # Normalización, tokenización, stopwords y pipeline
+│   └── models/              # Modelado, tuning CV, evaluación y benchmark
+├── tests/                   # 26 pruebas unitarias y de integración (Pytest)
+├── frontend/                # Interfaz de usuario en React + Vite + Tailwind CSS
+├── Dockerfile               # Contenedorización multi-etapa
+├── docker-compose.yml       # Orquestación de contenedores
+├── CONTRIBUCIONES.md        # Trazabilidad de aportes por integrante
+├── requirements.txt         # Dependencias principales del proyecto
+├── requirements.lock.txt    # Fijación exacta de dependencias transitivas
+├── start.ps1                # Script de arranque en un solo paso (Windows)
+└── README.md                # Guía general del proyecto
 ```

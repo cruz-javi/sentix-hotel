@@ -47,3 +47,8 @@ Thumbs.db
 
 # Archivos de depuración y temporales
 *.log
+
+# Guías internas y notas de apoyo para la defensa
+docs/guia_defensa_y_modificaciones_en_vivo.md
+docs/outputs/
+

@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-950 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sentix-Hotel | Presentación de Defensa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .slide { display: none; }
+    .slide.active { display: flex; }
+    .code-box { background: #020617; border: 1px solid #1e293b; border-radius: 0.75rem; padding: 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+    .metric-card { background: #0f172a; border: 1px solid #1e293b; border-radius: 1rem; padding: 1.25rem; }
+  </style>
+</head>
+<body class="h-full flex flex-col font-sans selection:bg-indigo-600 selection:text-white bg-slate-950 text-slate-100 antialiased overflow-hidden">
+
+  <!-- Header Superior -->
+  <header class="h-14 border-b border-slate-800 bg-slate-900/60 backdrop-blur px-6 flex items-center justify-between flex-shrink-0 z-20">
+    <div class="flex items-center space-x-3">
+      <div class="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-xs text-white">SX</div>
+      <span class="font-bold text-sm tracking-tight">Sentix-Hotel</span>
+      <span class="text-xs text-slate-500">|</span>
+      <span class="text-xs text-slate-400">Defensa de Proyecto Integrador</span>
+    </div>
+
+    <!-- Temporizador y Controles -->
+    <div class="flex items-center space-x-4 text-xs font-mono">
+      <div id="timer" class="px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 border border-slate-700">10:00</div>
+      <div id="counter" class="text-slate-400 font-medium">1 / 10</div>
+    </div>
+  </header>
+
+  <!-- Barra de Progreso Superior -->
+  <div class="h-1 bg-slate-800 w-full flex-shrink-0">
+    <div id="progressBar" class="h-full bg-indigo-500 transition-all duration-300" style="width: 10%;"></div>
+  </div>
+
+  <!-- Contenedor Principal de Slides -->
+  <main class="flex-1 p-6 md:p-12 flex items-center justify-center relative overflow-y-auto">
+
+    <!-- SLIDE 1: Portada -->
+    <section class="slide active w-full max-w-5xl flex-col justify-center items-center text-center space-y-6">
+      <span class="px-3 py-1 rounded-full text-xs font-mono font-medium bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+        Tópicos y Programación Avanzada · Primer Parcial
+      </span>
+      <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
+        Sentix-Hotel
+      </h1>
+      <p class="text-lg md:text-xl text-slate-300 max-w-3xl leading-relaxed">
+        Plataforma Inteligente de Análisis de Sentimiento y Minería de Opinión en Reseñas de Hospedaje en Español
+      </p>
+      <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 max-w-2xl text-left space-y-3">
+        <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Puntos Centrales de la Exposición:</div>
+        <ul class="text-xs text-slate-300 space-y-2 list-disc list-inside font-mono">
+          <li>Dataset balanceado (4.468 reseñas en español) y análisis exploratorio (EDA).</li>
+          <li>Pipeline de PLN con retención obligatoria de negaciones y lematización contextual.</li>
+          <li>Comparativa experimental: Regresión Logística (96,42%) vs. Random Forest (94,74%).</li>
+          <li>Arquitectura en 5 capas desacopladas con API REST (FastAPI) y Frontend (React + Vite).</li>
+        </ul>
+      </div>
+      <p class="text-xs text-slate-500 font-mono">Usa las teclas [←] y [→] o haz clic en los botones inferiores para navegar.</p>
+    </section>
+
+    <!-- SLIDE 2: Problema y Contexto de Negocio -->
+    <section class="slide w-full max-w-5xl flex-col space-y-6">
+      <div class="space-y-1">
+        <span class="text-xs font-mono text-indigo-400 uppercase tracking-wider">01 · Justificación de Dominio</span>
+        <h2 class="text-3xl font-bold text-white">El Problema: Minería de Opinión Hotelera</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+        <div class="metric-card space-y-3">
+          <h3 class="text-base font-semibold text-slate-200">El Desafío Operativo</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Las cadenas hoteleras reciben cientos de comentarios diarios en TripAdvisor, Booking y Google Reviews. La lectura manual es lenta, costosa y no permite una respuesta operativa oportuna ante quejas graves (falta de agua caliente, aire averiado, maltrato en recepción).
+          </p>
+          <div class="p-3 rounded-lg bg-rose-950/30 border border-rose-900/40 text-xs text-rose-300 font-mono">
+            Problema: Pérdida de reputación por demoras en detección de insatisfacción crítica.
+          </div>
+        </div>
+
+        <div class="metric-card space-y-3">
+          <h3 class="text-base font-semibold text-slate-200">La Solución Propuesta</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Un clasificador supervisado basado en PLN que asigna polaridad probabilística en milisegundos, permite inspeccionar las fases lingüísticas y procesa lotes masivos de archivos CSV para auditorías de calidad de servicio.
+          </p>
+          <div class="p-3 rounded-lg bg-emerald-950/30 border border-emerald-900/40 text-xs text-emerald-300 font-mono">
+            Solución: Inferencia en 12 ms, 96,42% F1-score y explicabilidad paso a paso.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: Dataset y EDA -->
+    <section class="slide w-full max-w-5xl flex-col space-y-6">
+      <div class="space-y-1">
+        <span class="text-xs font-mono text-indigo-400 uppercase tracking-wider">02 · Datos y Análisis Exploratorio</span>
+        <h2 class="text-3xl font-bold text-white">Curación del Dataset y Partición Estratificada</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+        <div class="metric-card text-center space-y-1">
+          <span class="text-xs text-slate-400">Total Reseñas</span>
+          <div class="text-3xl font-extrabold text-white font-mono">4.468</div>
+          <span class="text-[11px] text-slate-500">TripAdvisor Corpus ES</span>
+        </div>
+        <div class="metric-card text-center space-y-1">
+          <span class="text-xs text-slate-400">Balance de Clases</span>
+          <div class="text-3xl font-extrabold text-emerald-400 font-mono">50% / 50%</div>
+          <span class="text-[11px] text-slate-500">2.234 Positivas · 2.234 Negativas</span>
+        </div>
+        <div class="metric-card text-center space-y-1">
+          <span class="text-xs text-slate-400">Partición Train / Test</span>
+          <div class="text-3xl font-extrabold text-indigo-400 font-mono">80% / 20%</div>
+          <span class="text-[11px] text-slate-500">3.574 Train · 894 Test Aislado</span>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2 text-xs">
+        <div class="font-semibold text-slate-200">Garantías Metodológicas del Análisis Exploratorio:</div>
+        <ul class="list-disc list-inside space-y-1 text-slate-400 font-mono">
+          <li><strong>Cero Fuga de Información (Data Leakage):</strong> El split se realizó con <code class="text-indigo-300">random_state=42</code> y estratificación por clase.</li>
+          <li><strong>Distribución de Longitud:</strong> Promedio de 91,2 palabras por reseña. Rango de 6 a 845 palabras.</li>
+          <li><strong>Valores Faltantes:</strong> 0 nulos detectados en el análisis del notebook <code class="text-slate-300">01_eda_exploratorio.ipynb</code>.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: El Pipeline de PLN -->
+    <section class="slide w-full max-w-5xl flex-col space-y-6">
+      <div class="space-y-1">
+        <span class="text-xs font-mono text-indigo-400 uppercase tracking-wider">03 · Procesamiento de Lenguaje Natural</span>
+        <h2 class="text-3xl font-bold text-white">Pipeline de PLN: Las 4 Fases de Transformación</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs font-mono">
+        <div class="metric-card space-y-2">
+          <span class="text-indigo-400 font-bold block">1. Normalización</span>
+          <p class="text-slate-300 font-sans">Minúsculas, tildes, diéresis (ü, Ü), remoción de HTML, URLs y ruido tipográfico.</p>
+        </div>
+        <div class="metric-card space-y-2">
+          <span class="text-indigo-400 font-bold block">2. Tokenización</span>
+          <p class="text-slate-300 font-sans">Segmentación léxica de palabras alfanuméricas en español con longitud mínima de 2 caracteres.</p>
+        </div>
+        <div class="metric-card space-y-2">
+          <span class="text-amber-400 font-bold block">3. Stop Words</span>
+          <p class="text-slate-300 font-sans">Eliminación de conectores vacíos pero <strong>retención estricta de palabras de negación</strong>.</p>
+        </div>
+        <div class="metric-card space-y-2">
+          <span class="text-emerald-400 font-bold block">4. Lematización</span>
+          <p class="text-slate-300 font-sans">Reducción a formas canónicas de diccionario mediante spaCy (es_core_news_sm).</p>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 font-mono space-y-2">
+        <div class="text-amber-300 font-bold">Por qué conservamos las palabras de negación ("no", "nunca", "sin", "jamás"):</div>
+        <p class="font-sans text-slate-400">
+          En análisis de sentimiento, eliminar "no" convierte <em>"el hotel <strong>no</strong> me gustó"</em> en <em>"hotel gustó"</em>, invirtiendo la polaridad y destruyendo la precisión del clasificador.
+        </p>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: Comparativa de Decisiones de PLN -->
+    <section class="slide w-full max-w-5xl flex-col space-y-6">
+      <div class="space-y-1">
+        <span class="text-xs font-mono text-indigo-400 uppercase tracking-wider">04 · Validación Lingüística Empírica</span>
+        <h2 class="text-3xl font-bold text-white">Morfología y N-gramas: Decisiones Respaldadas en Datos</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+        <!-- Comparativa 1: Stemming vs Lematización -->
+        <div class="metric-card space-y-3">
+          <h3 class="text-sm font-bold text-slate-200">1. Stemming (NLTK) vs. Lematización (spaCy)</h3>
+          <table class="w-full text-left font-mono">
+            <thead class="border-b border-slate-800 text-slate-500">
+              <tr><th class="py-1.5">Técnica</th><th>Accuracy</th><th>F1-Score</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800">
+              <tr><td class="py-1.5 text-slate-400">Stemming (Snowball)</td><td>95,97%</td><td>0,9597</td></tr>
+              <tr class="text-emerald-400 font-bold"><td class="py-1.5">Lematización (spaCy)</td><td>96,42%</td><td>0,9642</td></tr>
+            </tbody>
+          </table>
+          <p class="text-slate-400 font-sans">
+            La lematización aporta <strong>+0,45% F1-score</strong> porque conserva el significado de verbos irregulares (ej. <em>estuvimos</em> $\rightarrow$ <em>estar</em>).
+          </p>
+        </div>
+
+        <!-- Comparativa 2: Unigramas vs Bigramas -->
+        <div class="metric-card space-y-3">
+          <h3 class="text-sm font-bold text-slate-200">2. Unigramas vs. Unigramas + Bigramas (1, 2)</h3>
+          <table class="w-full text-left font-mono">
+            <thead class="border-b border-slate-800 text-slate-500">
+              <tr><th class="py-1.5">Rango N-gramas</th><th>Accuracy</th><th>F1-Score</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800">
+              <tr><td class="py-1.5 text-slate-400">Solo Unigramas (1, 1)</td><td>95,53%</td><td>0,9552</td></tr>
+              <tr class="text-emerald-400 font-bold"><td class="py-1.5">Unigramas + Bigramas (1, 2)</td><td>96,42%</td><td>0,9642</td></tr>
+            </tbody>
+          </table>
+          <p class="text-slate-400 font-sans">
+            Los bigramas aportan <strong>+0,90% F1-score</strong> al capturar combinaciones como <em>"no_recomiendo"</em> o <em>"muy_atento"</em>.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: Comparativa de Modelos de ML -->
+    <section class="slide w-full max-w-5xl flex-col space-y-6">
+      <div class="space-y-1">
+        <span class="text-xs font-mono text-indigo-400 uppercase tracking-wider">05 · Modelado y Selección</span>
+        <h2 class="text-3xl font-bold text-white">Regresión Logística vs. Random Forest</h2>
+      </div>
+
+      <div class="metric-card overflow-x-auto">
+        <table class="w-full text-xs text-left font-mono">
+          <thead class="border-b border-slate-800 text-slate-400 uppercase">
+            <tr>
+              <th class="py-2.5 px-3">Modelo</th>
+              <th class="py-2.5 px-3">Accuracy</th>
+              <th class="py-2.5 px-3">Precision</th>
+              <th class="py-2.5 px-3">Recall</th>
+              <th class="py-2.5 px-3">F1 Macro</th>
+              <th class="py-2.5 px-3">Latencia</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800">
+            <tr class="bg-indigo-950/30 text-emerald-300 font-bold">
+              <td class="py-3 px-3">Regresión Logística (Producción)</td>
+              <td class="py-3 px-3">96,42%</td>
+              <td class="py-3 px-3">96,50%</td>
+              <td class="py-3 px-3">96,42%</td>
+              <td class="py-3 px-3">0,9642</td>
+              <td class="py-3 px-3">12,1 ms</td>
+            </tr>
+            <tr class="text-slate-400">
+              <td class="py-3 px-3">Random Forest (100 árboles)</td>
+              <td class="py-3 px-3">94,74%</td>
+              <td class="py-3 px-3">94,86%</td>
+              <td class="py-3 px-3">94,74%</td>
+              <td class="py-3 px-3">0,9474</td>
+              <td class="py-3 px-3">24,7 ms</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono">
+        <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
+          <strong class="text-indigo-400 block mb-1">1. Rendimiento:</strong>
+          Regresión Logística supera a Random Forest en +1,68% de F1-Score en test set.
+        </div>
+        <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
+          <strong class="text-indigo-400 block mb-1">2. Latencia Web:</strong>
+          Inferencia el doble de rápida (12,1 ms vs 24,7 ms), ideal para microservicios.
+        </div>
+        <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
+          <strong class="text-indigo-400 block mb-1">3. Interpretabilidad:</strong>
+          Pesos lineales $w_i$ explicables directamente sin comportamiento de "caja negra".
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: Matriz de Confusión y Análisis de Errores -->
+    <section class="slide w-full max-w-5xl flex-col space-y-6">
+      <div class="space-y-1">
+        <span class="text-xs font-mono text-indigo-400 uppercase tracking-wider">06 · Diagnóstico y Calidad</span>
+        <h2 class="text-3xl font-bold text-white">Matriz de Confusión y Análisis de Errores</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Matriz 2x2 -->
+        <div class="metric-card space-y-3">
+          <div class="flex items-center justify-between text-xs font-bold text-slate-300">
+            <span>Matriz de Confusión (Test: 894 reseñas)</span>
+            <span class="font-mono text-emerald-400">96,42% Acierto</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-center font-mono text-xs pt-1">
+            <div class="p-3 rounded-lg bg-emerald-950/40 border border-emerald-800/80">
+              <span class="text-[10px] text-slate-400 uppercase">TN (Verdaderos Neg)</span>
+              <p class="text-2xl font-black text-emerald-300 my-0.5">439</p>
+              <span class="text-[10px] text-slate-400">Real: Neg → Pred: Neg</span>
+            </div>
+            <div class="p-3 rounded-lg bg-rose-950/40 border border-rose-800/80">
+              <span class="text-[10px] text-rose-400 uppercase">FP (Falsos Pos)</span>
+              <p class="text-2xl font-black text-rose-300 my-0.5">8</p>
+              <span class="text-[10px] text-slate-400">Alarma falsa (1,79%)</span>
+            </div>
+            <div class="p-3 rounded-lg bg-amber-950/40 border border-amber-800/80">
+              <span class="text-[10px] text-amber-400 uppercase">FN (Falsos Neg)</span>
+              <p class="text-2xl font-black text-amber-300 my-0.5">24</p>
+              <span class="text-[10px] text-slate-400">Omisión (5,37%)</span>
+            </div>
+            <div class="p-3 rounded-lg bg-emerald-950/40 border border-emerald-800/80">
+              <span class="text-[10px] text-slate-400 uppercase">TP (Verdaderos Pos)</span>
+              <p class="text-2xl font-black text-emerald-300 my-0.5">423</p>
+              <span class="text-[10px] text-slate-400">Real: Pos → Pred: Pos</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Análisis de Errores -->
+        <div class="metric-card space-y-2 text-xs">
+          <h3 class="font-bold text-slate-200 uppercase tracking-wider">Patrones de Error Documentados</h3>
+          <div class="space-y-2 font-mono">
+            <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+              <strong class="text-amber-400 block">1. Quejas secundarias (Falso Negativo):</strong>
+              <p class="font-sans text-slate-300 text-[11px] mt-0.5">
+                "El hotel es hermoso, pero el buffet estaba frío." Palabras negativas aisladas reducen la probabilidad global.
+              </p>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+              <strong class="text-rose-400 block">2. Sarcasmo / Ironía (Falso Positivo):</strong>
+              <p class="font-sans text-slate-300 text-[11px] mt-0.5">
+                "Una maravilla de lugar si quieres que nadie te atienda." Palabras positivas léxicas engañan al modelo lineal.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: Arquitectura en 5 Capas -->
+    <section class="slide w-full max-w-5xl flex-col space-y-6">
+      <div class="space-y-1">
+        <span class="text-xs font-mono text-indigo-400 uppercase tracking-wider">07 · Ingeniería de Software</span>
+        <h2 class="text-3xl font-bold text-white">Arquitectura Desacoplada en 5 Capas</h2>
+      </div>
+
+      <div class="code-box text-xs space-y-1 text-slate-300">
+        <p><span class="text-indigo-400 font-bold">[Capa 1: Datos y EDA]</span> ── data/raw/hotel_reviews_es.csv ── notebooks/01_eda_exploratorio.ipynb</p>
+        <p class="pl-8 text-slate-500">│</p>
+        <p><span class="text-indigo-400 font-bold">[Capa 2: Pipeline PLN]</span> ── src/nlp/ (normalizer, tokenizer, stopwords, morphology, pipeline.py)</p>
+        <p class="pl-8 text-slate-500">│  (Serialización unificada en models/sentix_pipeline.joblib)</p>
+        <p><span class="text-indigo-400 font-bold">[Capa 3: Modelado ML]</span> ── src/models/ (logistic_regression, random_forest, train, verify_artifact)</p>
+        <p class="pl-8 text-slate-500">│  (Reporte formal en models/metrics_report.json)</p>
+        <p><span class="text-indigo-400 font-bold">[Capa 4: Backend REST]</span> ── api/main.py (FastAPI: /predict, /predict-batch, /nlp-steps, /config, /metrics)</p>
+        <p class="pl-8 text-slate-500">│</p>
+        <p><span class="text-indigo-400 font-bold">[Capa 5: Frontend UI]</span> ── frontend/ (React 18 + Vite + Tailwind CSS: Clasificador, Pipeline, Métricas, Batch)</p>
+      </div>
+
+      <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-400 font-mono">
+        <strong>Regla de Oro de Integración:</strong> El backend jamás reimplementa el preprocesamiento de texto; carga el artefacto <code class="text-indigo-300">.joblib</code> para garantizar idéntico comportamiento entre entrenamiento y producción.
+      </div>
+    </section>
+
+    <!-- SLIDE 9: Demostración del Sistema -->
+    <section class="slide w-full max-w-5xl flex-col space-y-6">
+      <div class="space-y-1">
+        <span class="text-xs font-mono text-indigo-400 uppercase tracking-wider">08 · Demostración en Vivo</span>
+        <h2 class="text-3xl font-bold text-white">Demostración de Funcionalidades de la Aplicación</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
+        <div class="metric-card space-y-2">
+          <span class="text-indigo-400 font-bold block">1. Clasificador en Tiempo Real</span>
+          <p class="text-slate-300 font-sans">Entrada de reseña con atajo Ctrl+Enter, casos rápidos predeterminados, estimación de probabilidad y confianza.</p>
+        </div>
+        <div class="metric-card space-y-2">
+          <span class="text-indigo-400 font-bold block">2. Desglose Paso a Paso de PLN</span>
+          <p class="text-slate-300 font-sans">Inspección de las 4 fases: texto normalizado, tokens léxicos, palabras de negación retenidas [NEG] y lemas finales.</p>
+        </div>
+        <div class="metric-card space-y-2">
+          <span class="text-indigo-400 font-bold block">3. Dashboard de Rendimiento</span>
+          <p class="text-slate-300 font-sans">KPIs de Accuracy (96,42%), F1-Score, matriz de confusión interactiva y muestras reales de análisis de errores.</p>
+        </div>
+        <div class="metric-card space-y-2">
+          <span class="text-indigo-400 font-bold block">4. Procesamiento Masivo por CSV</span>
+          <p class="text-slate-300 font-sans">Carga de archivos de reseñas, cálculo vectorial por lote y exportación de predicciones a archivo CSV descargable.</p>
+        </div>
+      </div>
+
+      <div class="p-3 rounded-xl bg-indigo-950/30 border border-indigo-800/40 text-center text-xs text-indigo-300 font-mono">
+        Aplicación activa en: <strong>http://127.0.0.1:8000</strong> (o dev en <strong>http://localhost:3000</strong>)
+      </div>
+    </section>
+
+    <!-- SLIDE 10: Conclusiones y Preparación de Defensa -->
+    <section class="slide w-full max-w-5xl flex-col space-y-6">
+      <div class="space-y-1">
+        <span class="text-xs font-mono text-indigo-400 uppercase tracking-wider">09 · Conclusiones y Defensa</span>
+        <h2 class="text-3xl font-bold text-white">Conclusiones y Modificaciones en Vivo</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+        <div class="metric-card space-y-2">
+          <h3 class="font-bold text-slate-200 uppercase tracking-wider font-mono">Logros del Proyecto</h3>
+          <ul class="space-y-1 text-slate-300 list-disc list-inside font-mono">
+            <li>Solución de 5 capas completamente integrada y desacoplada.</li>
+            <li>96,42% de F1-Score en test set reproducible.</li>
+            <li>26 pruebas unitarias automatizadas con Pytest.</li>
+            <li>Pipeline auditable mediante <code class="text-indigo-300">verify_artifact.py</code>.</li>
+            <li>Arranque en 1 paso mediante <code class="text-indigo-300">start.ps1</code> o Docker.</li>
+          </ul>
+        </div>
+
+        <div class="metric-card space-y-2">
+          <h3 class="font-bold text-slate-200 uppercase tracking-wider font-mono">Preparación para Modificación en Vivo</h3>
+          <p class="text-slate-300 font-sans leading-relaxed">
+            Todos los hiperparámetros, umbrales y palabras de negación están centralizados en <code class="text-indigo-300 font-mono">src/config.py</code>.
+          </p>
+          <div class="p-2.5 rounded bg-slate-900 border border-slate-800 font-mono text-[11px] text-slate-400">
+            Cualquier cambio solicitado por el docente (cambiar umbral, n-gramas o stopwords) se realiza en menos de 10 segundos y se reentrena con un solo comando.
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center pt-4">
+        <h3 class="text-xl font-bold text-white">¡Muchas Gracias!</h3>
+        <p class="text-xs text-slate-400 font-mono mt-1">Listo para la sesión de preguntas individuales y modificaciones en vivo.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Barra de Navegación Inferior -->
+  <footer class="h-16 border-t border-slate-800 bg-slate-900/60 backdrop-blur px-6 flex items-center justify-between flex-shrink-0 z-20">
+    <div class="text-xs text-slate-400 font-mono hidden sm:block">
+      Navegación: <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">← Anterior</kbd> <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">Siguiente →</kbd>
+    </div>
+
+    <div class="flex items-center space-x-2">
+      <button id="prevBtn" type="button" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition">
+        Anterior
+      </button>
+      <button id="nextBtn" type="button" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-lg shadow-indigo-600/20 transition">
+        Siguiente
+      </button>
+    </div>
+  </footer>
+
+  <!-- Lógica de Navegación y Temporizador -->
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const counter = document.getElementById('counter');
+    const progressBar = document.getElementById('progressBar');
+    let currentSlide = 0;
+    const totalSlides = slides.length;
+
+    function updateSlide(newIndex) {
+      if (newIndex < 0 || newIndex >= totalSlides) return;
+      slides[currentSlide].classList.remove('active');
+      currentSlide = newIndex;
+      slides[currentSlide].classList.add('active');
+
+      counter.textContent = `${currentSlide + 1} / ${totalSlides}`;
+      progressBar.style.width = `${((currentSlide + 1) / totalSlides) * 100}%`;
+
+      prevBtn.disabled = currentSlide === 0;
+      prevBtn.classList.toggle('opacity-40', currentSlide === 0);
+      nextBtn.textContent = currentSlide === totalSlides - 1 ? 'Finalizar' : 'Siguiente';
+    }
+
+    prevBtn.addEventListener('click', () => updateSlide(currentSlide - 1));
+    nextBtn.addEventListener('click', () => updateSlide(currentSlide + 1));
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        updateSlide(currentSlide + 1);
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        updateSlide(currentSlide - 1);
+      }
+    });
+
+    // Temporizador regresivo de 10 minutos
+    let timeRemaining = 600;
+    const timerEl = document.getElementById('timer');
+    const timerInterval = setInterval(() => {
+      if (timeRemaining <= 0) {
+        clearInterval(timerInterval);
+        timerEl.classList.add('bg-rose-950', 'text-rose-400', 'border-rose-800');
+        return;
+      }
+      timeRemaining--;
+      const mins = Math.floor(timeRemaining / 60);
+      const secs = timeRemaining % 60;
+      timerEl.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      if (timeRemaining <= 60) {
+        timerEl.classList.add('bg-amber-950', 'text-amber-400', 'border-amber-800');
+      }
+    }, 1000);
+
+    updateSlide(0);
+  </script>
+</body>
+</html>
+

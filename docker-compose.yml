@@ -1,0 +1,18 @@
+services:
+  sentix-hotel:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sentix-hotel:latest
+    container_name: sentix_hotel_app
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
