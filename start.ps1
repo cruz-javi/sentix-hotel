@@ -11,7 +11,12 @@ $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $projectRoot
 
-$venvPython = Join-Path $projectRoot 'venv\Scripts\python.exe'
+$venvPython = if (Test-Path (Join-Path $projectRoot '.venv\Scripts\python.exe')) {
+    Join-Path $projectRoot '.venv\Scripts\python.exe'
+}
+else {
+    Join-Path $projectRoot 'venv\Scripts\python.exe'
+}
 
 # 1. Entorno virtual de Python (se crea con el lanzador py si esta disponible)
 if (-not (Test-Path $venvPython)) {
